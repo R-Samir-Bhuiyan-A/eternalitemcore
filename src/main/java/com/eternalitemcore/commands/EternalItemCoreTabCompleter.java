@@ -46,7 +46,7 @@ public class EternalItemCoreTabCompleter implements TabCompleter {
         } else if (args.length == 3) {
             String sub = args[0].toLowerCase();
             if (sub.equals("give")) {
-                completions.addAll(plugin.getConfigManager().getStatCores().keySet().stream()
+                completions.addAll(plugin.getConfig().getConfigurationSection("stat-cores").getKeys(false).stream()
                         .filter(c -> c.toLowerCase().startsWith(args[2].toLowerCase()))
                         .collect(Collectors.toList()));
             } else if (sub.equals("setlevel") || sub.equals("addstat")) {

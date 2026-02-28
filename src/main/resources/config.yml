@@ -106,6 +106,58 @@ stat-cores:
       - "&eTracks: Player Kills"
     stat-type: STORM_KILLS
 
+  EYE_OF_THE_SNIPER:
+    material: SPIDER_EYE
+    name: "&#a8fba4&lEye of the Sniper"
+    lore:
+      - "&7An unblinking eye, said to guide"
+      - "&7the arrows of legendary archers."
+      - "&7"
+      - "&7Weaves into a Bow to track your"
+      - "&7lethal marksmanship."
+      - "&8▬▬▬▬▬▬▬▬▬▬▬"
+      - "&aTracks: Bow Kills"
+    stat-type: BOW_KILLS
+    
+  ROOT_OF_THE_EARTH:
+    material: HANGING_ROOTS
+    name: "&#6b4226&lRoot of the Earth"
+    lore:
+      - "&7A gnarled root pulsating with"
+      - "&7the raw energy of nature."
+      - "&7"
+      - "&7Empowers a Hoe to harvest"
+      - "&7the very lifeforce of crops."
+      - "&8▬▬▬▬▬▬▬▬▬▬▬"
+      - "&2Tracks: Crops Harvested"
+    stat-type: CROPS_HARVESTED
+    
+  SKULL_OF_THE_BRUTE:
+    material: WITHER_SKELETON_SKULL
+    name: "&#c2c2c2&lSkull of the Brute"
+    lore:
+      - "&7A cracked skull radiating"
+      - "&7pure, unadulterated rage."
+      - "&7"
+      - "&7Binds to an Axe, demanding"
+      - "&7the blood of monsters."
+      - "&8▬▬▬▬▬▬▬▬▬▬▬"
+      - "&cTracks: Mob Kills"
+    stat-type: AXE_MOB_KILLS
+
+  CROWN_OF_MADNESS:
+    material: SCULK_VEIN
+    name: "&#0a252a&lCrown of Deep Madness"
+    lore:
+      - "&7A pulsing, shadowy mass that"
+      - "&7whispers from the deep dark."
+      - "&7"
+      - "&7Weaves into a Helmet, tracking"
+      - "&7the damage you endure."
+      - "&8▬▬▬▬▬▬▬▬▬▬▬"
+      - "&3Tracks: Damage Taken"
+    stat-type: MADNESS_TAKEN
+
 allowed-stats:
   SWORD:
     - PLAYER_KILLS
@@ -128,6 +180,13 @@ allowed-stats:
     - DAMAGE_TAKEN
   HELMET:
     - DAMAGE_TAKEN
+    - MADNESS_TAKEN
+  BOW:
+    - BOW_KILLS
+  HOE:
+    - CROPS_HARVESTED
+  AXE:
+    - AXE_MOB_KILLS
 
 stats:
   PLAYER_KILLS:
@@ -316,6 +375,77 @@ stats:
           - "&#a19f9f&l&oTHE HEAVENLY BULWARK"
           - "&8&oYou are the unbreakable wall."
         ability-unlock: GUARDIAN_ANGEL
+
+  BOW_KILLS:
+    event: PROJECTILE_KILL
+    display: "&a🏹 Bow Kills"
+    max-level: 3
+    conflicts-with: []
+    leveling:
+      formula: "10 * (level ^ 2)"
+    levels:
+      1:
+        storyline:
+          - "&8&o'The string hums with anticipation...'"
+        ability-unlock: HAWK_EYE
+      2:
+        storyline:
+          - "&a&o'Your arrows find their mark.'"
+        ability-unlock: VOLLEY_SHOT
+      3:
+        storyline:
+          - "&2&l'THE APEX PREDATOR WAKES'"
+        ability-unlock: EXPLOSIVE_SHOT
+
+  CROPS_HARVESTED:
+    event: BLOCK_BREAK_CROP
+    display: "&e🌾 Crops Harvested"
+    max-level: 2
+    conflicts-with: []
+    leveling:
+      formula: "50 * (level ^ 2)"
+    levels:
+      1:
+        storyline:
+          - "&8&o'The wood drinks the morning dew...'"
+        ability-unlock: NATURES_GIFT
+      2:
+        storyline:
+          - "&a&o'NATURE CARES FOR ITS OWN'"
+        ability-unlock: GRAND_HARVEST
+
+  AXE_MOB_KILLS:
+    event: MOB_KILL
+    display: "&c🪓 Axe Kills"
+    max-level: 2
+    conflicts-with: []
+    leveling:
+      formula: "25 * (level ^ 2)"
+    levels:
+      1:
+        storyline:
+          - "&c&o'The blade craves bone...'"
+        ability-unlock: BERSERKER
+      2:
+        storyline:
+          - "&4&l'THE EARTH SHATTERS AT YOUR MIGHT'"
+        ability-unlock: EARTHQUAKE_CLEAVE
+
+  MADNESS_TAKEN:
+    event: PLAYER_DAMAGE_TAKEN
+    display: "&3🔮 Madness Induced"
+    max-level: 2
+    conflicts-with: []
+    leveling:
+      formula: "500 * (level ^ 2)"
+    levels:
+      1:
+        storyline:
+          - "&8&o'The whispers grow louder...'"
+      2:
+        storyline:
+          - "&1&l'THE DEEP DARK HEARS YOU'"
+        ability-unlock: SONIC_BOOM
 
 ability-cores:
   SWIFT_ASSASSIN:
