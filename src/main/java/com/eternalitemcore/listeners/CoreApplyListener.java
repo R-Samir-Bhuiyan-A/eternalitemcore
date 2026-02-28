@@ -65,11 +65,28 @@ public class CoreApplyListener implements Listener {
             return;
         }
 
+        List<String> enabledStats = plugin.getItemDataManager().getEnabledStats(offHand);
+        int maxStats = plugin.getConfig().getInt("settings.max-stats-per-item", 3);
+        if (enabledStats.size() >= maxStats) {
+            player.sendMessage(ChatColor.RED + "This item has reached the maximum number of cores (" + maxStats + ")!");
+            return;
+        }
+
+        List<String> conflicts = plugin.getConfig().getStringList("stats." + statId + ".conflicts-with");
+        for (String enabled : enabledStats) {
+            if (conflicts.contains(enabled)) {
+                player.sendMessage(ChatColor.RED + "This core conflicts with the " + enabled + " core already on this item!");
+                return;
+            }
+        }
+
         // Apply stat
         plugin.getItemDataManager().addEnabledStat(offHand, statId);
         
         mainHand.setAmount(mainHand.getAmount() - 1);
         player.sendMessage(ChatColor.GREEN + "Successfully applied " + statId + " tracking to your item!");
+        
+        giveLoreBook(player, statId);
         
         plugin.getLoreManager().updateLore(offHand);
 
@@ -93,5 +110,55 @@ public class CoreApplyListener implements Listener {
         if (name.endsWith("_BOOTS")) return "BOOTS";
         if (name.equals("SHIELD")) return "SHIELD";
         return name;
+    }
+
+    private void giveLoreBook(Player player, String statId) {
+        org.bukkit.configuration.ConfigurationSection statConfig = plugin.getConfig().getConfigurationSection("stats." + statId);
+        if (statConfig == null) return;
+        
+        String display = statConfig.getString("display", statId);
+        org.bukkit.inventory.ItemStack book = new org.bukkit.inventory.ItemStack(org.bukkit.Material.WRITTEN_BOOK);
+        org.bukkit.inventory.meta.BookMeta meta = (org.bukkit.inventory.meta.BookMeta) book.getItemMeta();
+        
+        if (meta != null) {
+            meta.setTitle(ChatColor.translateAlternateColorCodes('&', "&6Tome of " + display));
+            meta.setAuthor("Eternal Item Core");
+            
+            int maxLevel = statConfig.getInt("max-level", 5);
+            for (int i = 1; i <= maxLevel; i++) {
+                org.bukkit.configuration.ConfigurationSection lvlConfig = statConfig.getConfigurationSection("levels." + i);
+                if (lvlConfig != null) {
+                    StringBuilder page = new StringBuilder();
+                    page.append(ChatColor.translateAlternateColorCodes('&', "&0&lLevel " + i + "\n\n"));
+                    
+                    List<String> story = lvlConfig.getStringList("storyline");
+                    for (String line : story) {
+                        page.append(ChatColor.translateAlternateColorCodes('&', line)).append("\n");
+                    }
+                    
+                    if (lvlConfig.contains("ability-unlock")) {
+                        String abilityId = lvlConfig.getString("ability-unlock");
+                        String abilityName = plugin.getConfig().getString("ability-cores." + abilityId + ".display", abilityId);
+                        page.append("\n\n");
+                        page.append(ChatColor.translateAlternateColorCodes('&', "&8&lUnlocks:\n"));
+                        page.append(ChatColor.translateAlternateColorCodes('&', abilityName));
+                    }
+                    
+                    if (i < maxLevel) {
+                        int reqXp = plugin.getItemDataManager().getRequiredXp(statId, i);
+                        String eventStr = statConfig.getString("event", "Trigger").replace("_", " ");
+                        page.append("\n\n");
+                        page.append(ChatColor.translateAlternateColorCodes('&', "&8&lTo Reach Level " + (i + 1) + ":\n"));
+                        page.append(ChatColor.translateAlternateColorCodes('&', "&7" + reqXp + " " + eventStr));
+                    }
+                    
+                    meta.addPage(page.toString());
+                }
+            }
+            
+            book.setItemMeta(meta);
+            player.getInventory().addItem(book);
+            player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e&oA mysterious tome appears in your inventory..."));
+        }
     }
 }

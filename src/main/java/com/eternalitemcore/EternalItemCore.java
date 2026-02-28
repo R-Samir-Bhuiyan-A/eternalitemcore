@@ -38,8 +38,14 @@ public class EternalItemCore extends JavaPlugin {
         getCommand("eternalitemcore").setExecutor(new EternalItemCoreCommand(this));
         getCommand("eternalitemcore").setTabCompleter(new EternalItemCoreTabCompleter(this));
 
-        getServer().getPluginManager().registerEvents(new CoreApplyListener(this), this);
-        getServer().getPluginManager().registerEvents(new StatTrackerListener(this), this);
+        // Register Listeners
+        org.bukkit.plugin.PluginManager pluginManager = getServer().getPluginManager();
+        pluginManager.registerEvents(new CoreApplyListener(this), this);
+        pluginManager.registerEvents(new com.eternalitemcore.listeners.AntiCraftListener(this), this);
+        pluginManager.registerEvents(new StatTrackerListener(this), this);
+        pluginManager.registerEvents(new com.eternalitemcore.listeners.ActiveAbilityListener(this), this);
+
+        getServer().getScheduler().runTaskTimerAsynchronously(this, new com.eternalitemcore.utils.AbilityTickManager(this), 20L, 20L);
 
         getLogger().info("EternalItemCore has been enabled!");
     }

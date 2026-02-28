@@ -1,6 +1,7 @@
 settings:
   lore-update: true
   anti-spawner-farm-kills: true
+  max-stats-per-item: 2
 
 rarities:
   COMMON:
@@ -70,7 +71,7 @@ stat-cores:
       - "&7guarded the Heavens."
       - "&7"
       - "&7When fused to a shield, it"
-      - "&7learns from every blow defelcted,"
+      - "&7learns from every blow deflected,"
       - "&7becoming an immovable object."
       - "&8▬▬▬▬▬▬▬▬▬▬▬"
       - "&7Tracks: Damage Blocked"
@@ -91,6 +92,20 @@ stat-cores:
       - "&eTracks: Damage Taken"
     stat-type: DAMAGE_TAKEN
 
+  CORE_OF_THE_STORM:
+    material: ECHO_SHARD
+    name: "&#00c3ff&lCore of the Tempest"
+    lore:
+      - "&7Crackling with contained lightning,"
+      - "&7this volatile shard begs to be"
+      - "&7unleashed upon the unworthy."
+      - "&7"
+      - "&7Weaves into a Mace, calling"
+      - "&7down the wrath of the skies."
+      - "&8▬▬▬▬▬▬▬▬▬▬▬"
+      - "&eTracks: Player Kills"
+    stat-type: STORM_KILLS
+
 allowed-stats:
   SWORD:
     - PLAYER_KILLS
@@ -100,6 +115,7 @@ allowed-stats:
     - BLOCKS_MINED
   MACE:
     - PLAYER_KILLS
+    - STORM_KILLS
   SPEAR:
     - PLAYER_KILLS
   SHIELD:
@@ -118,6 +134,8 @@ stats:
     event: PLAYER_KILL
     display: "&#ff3b3b⚔ Player Kills"
     max-level: 5
+    conflicts-with:
+      - STORM_KILLS
     leveling:
       formula: "10 * (level ^ 2)" 
     levels:
@@ -131,13 +149,15 @@ stats:
           - "&c&oIt pulls you toward battle,"
           - "&c&ogranting you unnatural speed."
         ability-unlock: SWIFT_ASSASSIN
+        broadcast-message: "&c&l%player%'s&7 weapon has tasted blood and reached Level 2!"
       3:
         storyline:
           - "&4&o'A symphony of screaming souls...'"
           - "&4&oYour enemies tremble as your"
           - "&4&ostrikes call down the wrath"
           - "&4&oof the skies."
-        ability-unlock: THUNDER_WRATH
+        ability-unlock: BLOOD_EXPLOSION
+        broadcast-message: "&4&l%player%'s&7 blade violently erupts to Level 3!"
       4:
         storyline:
           - "&#ff0000&l&o'THE WARLORD AWAKENS'"
@@ -146,18 +166,59 @@ stats:
           - "&c&oYour weapon permanently seethes"
           - "&c&owith demonic strength."
         ability-unlock: DEMONIC_STRENGTH
+        broadcast-message: "&4&l%player% &chas awakened the Warlord within their weapon! (Level 4)"
       5:
         storyline:
           - "&#ff0000&k||| &4&lGOD OF WAR &#ff0000&k|||"
           - "&c&oThere is no one left to challenge you."
           - "&c&oThe blade has consumed everything."
           - "&c&oYou are the eternal conqueror."
-        ability-unlock: BLOOD_EXPLOSION
+        ability-unlock: BLADE_DANCE
+        broadcast-message: "&4&lTHE SERVER TREMBLES! %player%'s weapon has become a GOD OF WAR (Max Level)!"
       
+  STORM_KILLS:
+    event: PLAYER_KILL
+    display: "&#00c3ff⚡ Tempest Strikes"
+    max-level: 5
+    conflicts-with:
+      - PLAYER_KILLS
+    leveling:
+      formula: "5 * (level ^ 2)"
+    levels:
+      1:
+        storyline:
+          - "&8&oA faint spark arcs across the metal."
+      2:
+        storyline:
+          - "&b&oThe skies begin to darken when"
+          - "&b&oyou draw this weapon..."
+        ability-unlock: THUNDER_WRATH_KILL
+        broadcast-message: "&b&l%player%'s&7 weapon crackles with storm energy! (Level 2)"
+      3:
+        storyline:
+          - "&3&oYou are the calm in the center of"
+          - "&3&othe hurricane. You move like the wind."
+        ability-unlock: STORM_SPEED
+        broadcast-message: "&3&l%player%'s&7 weapon has harnessed the tempest! (Level 3)"
+      4:
+        storyline:
+          - "&#00c3ff&l&o'MJOLNIR PROTOTYPE'"
+          - "&b&oThe air pressure drops violently."
+        ability-unlock: DIVINE_SMITE_KILL
+        broadcast-message: "&b&l%player% &3is summoning severe storms! (Level 4)"
+      5:
+        storyline:
+          - "&#00c3ff&k||| &b&lTHE THUNDER GOD &#00c3ff&k|||"
+          - "&b&oYou point, and lightning strikes."
+          - "&b&oYour will is the storm."
+        ability-unlock: MJOLNIR_STRIKE
+        broadcast-message: "&b&lTHE SKY SHATTERS! %player% has become THE THUNDER GOD (Max Level)!"
+
   MOB_KILLS:
     event: MOB_KILL
     display: "&#ffae00☠ Monster Cleave"
-    max-level: 3
+    max-level: 4
+    conflicts-with: []
     leveling:
       formula: "50 * (level ^ 2)"
     levels:
@@ -168,18 +229,27 @@ stats:
         storyline:
           - "&6&oBathed in the remnants of the fallen."
         ability-unlock: STRENGTH_AURA
+        broadcast-message: "&6&l%player%'s&7 blade is hungering for monsters... (Level 2)"
       3:
         storyline:
           - "&#ffae00&l&oTHE MONSTER HUNTER"
           - "&e&oYour name is whispered in terror"
           - "&e&oamongst the creatures of the night."
-        ability-unlock: DIVINE_SMITE
+        ability-unlock: VAMPIRE_BITE
+        broadcast-message: "&e&l%player% &6has become an infamous Monster Hunter! (Level 3)"
+      4:
+        storyline:
+          - "&e&k||| &6&lVAN HELSING &e&k|||"
+          - "&e&oMonsters turn and flee at your sight."
+        ability-unlock: HOLY_EXPLOSION
+        broadcast-message: "&6&lTHE HORDE IS BROKEN! %player% is Van Helsing (Max Level)!"
 
   DIAMONDS_MINED:
     event: BLOCK_BREAK
     block: DIAMOND_ORE
     display: "&#00f0ff💎 Deep Earth Riches"
     max-level: 3
+    conflicts-with: []
     leveling:
       formula: "25 * (level ^ 2)"
     levels:
@@ -191,17 +261,20 @@ stats:
           - "&b&oThe mountain yields its treasures."
           - "&b&oYour swings become effortless."
         ability-unlock: DEEP_MINER
+        broadcast-message: "&b&l%player% &7is mastering the deep caves! (Level 2)"
       3:
         storyline:
           - "&#00f0ff&l&oMASTER OF THE ABYSS"
           - "&3&oYou have conquered the deepest caves."
           - "&3&oThe stone shatters before you."
         ability-unlock: ABYSSAL_HASTE
+        broadcast-message: "&3&l%player% &bhas conquered the abyss! (Max Level)"
 
   DAMAGE_TAKEN:
     event: ENTITY_DAMAGE
     display: "&#a832a8🛡 Void Endurance"
     max-level: 3
+    conflicts-with: []
     leveling:
       formula: "200 * (level ^ 2)" 
     levels:
@@ -226,6 +299,7 @@ stats:
     event: ENTITY_DAMAGE_BLOCKED
     display: "&#a19f9f🛡 Aegis Deflection"
     max-level: 3
+    conflicts-with: []
     leveling:
       formula: "150 * (level ^ 2)"
     levels:
@@ -245,67 +319,57 @@ stats:
 
 ability-cores:
   SWIFT_ASSASSIN:
-    type: POTION
+    type: PASSIVE
     effect: SPEED
     amplifier: 0
     display: "&e✦ Swift Assassin I"
-    sound: ENTITY_ENDER_DRAGON_FLAP
-    volume: 1.0
-    pitch: 0.5
   STRENGTH_AURA:
-    type: POTION
+    type: PASSIVE
     effect: INCREASE_DAMAGE
     amplifier: 0
     display: "&c✦ Monster's Bane I"
-    sound: ENTITY_ZOMBIE_VILLAGER_CURE
   DEMONIC_STRENGTH:
-    type: POTION
+    type: PASSIVE
     effect: INCREASE_DAMAGE
     amplifier: 1
     display: "&4✦ Demonic Strength II"
-    sound: ENTITY_WITHER_SPAWN
   DEEP_MINER:
-    type: POTION
+    type: PASSIVE
     effect: FAST_DIGGING
     amplifier: 1
     display: "&b✦ Deep Miner II"
   ABYSSAL_HASTE:
-    type: POTION
+    type: PASSIVE
     effect: FAST_DIGGING
     amplifier: 2
     display: "&3✦ Abyssal Haste III"
-    sound: BLOCK_BEACON_ACTIVATE
   RESISTANCE_AURA:
-    type: POTION
+    type: PASSIVE
     effect: DAMAGE_RESISTANCE
     amplifier: 0
     display: "&7✦ Resilience I"
   VOID_THICK_SKIN:
-    type: POTION
+    type: PASSIVE
     effect: DAMAGE_RESISTANCE
     amplifier: 1
     display: "&5✦ Void Thick Skin II"
-    sound: ITEM_SHIELD_BLOCK
   GUARDIAN_ANGEL:
-    type: POTION
+    type: PASSIVE
     effect: ABSORPTION
     amplifier: 1
     display: "&e✦ Guardian Angel II"
-    sound: ENTITY_PLAYER_LEVELUP
-  THUNDER_WRATH:
+  STORM_SPEED:
+    type: PASSIVE
+    effect: SPEED
+    amplifier: 1
+    display: "&b✦ Storm's Agility II"
+
+  VAMPIRE_BITE:
     type: KILL_EFFECT
-    effect: LIGHTNING
-    visual-only: true
-    display: "&e⚡ Thunder's Wrath"
-    sound: ENTITY_LIGHTNING_BOLT_THUNDER
-    pitch: 0.5
-    volume: 1.0
-  DIVINE_SMITE:
-    type: KILL_EFFECT
-    effect: LIGHTNING
-    visual-only: true
-    display: "&e⚡ Divine Smite"
-    sound: ENTITY_LIGHTNING_BOLT_IMPACT
+    effect: PARTICLE_EXPLOSION
+    particle: REDSTONE
+    count: 20
+    display: "&4✦ Vampire's Bite (Heal on Kill)"
   BLOOD_EXPLOSION:
     type: KILL_EFFECT
     effect: PARTICLE_EXPLOSION
@@ -313,3 +377,38 @@ ability-cores:
     count: 30
     display: "&c💥 Blood Explosion"
     sound: ENTITY_DRAGON_FIREBALL_EXPLODE
+  HOLY_EXPLOSION:
+    type: KILL_EFFECT
+    effect: PARTICLE_EXPLOSION
+    particle: SOUL_FIRE_FLAME
+    count: 50
+    display: "&b💥 Holy Detonation"
+    sound: ENTITY_ZOMBIE_VILLAGER_CURE
+  THUNDER_WRATH_KILL:
+    type: KILL_EFFECT
+    effect: LIGHTNING
+    visual-only: true
+    display: "&e⚡ Thunder's Wrath"
+    sound: ENTITY_LIGHTNING_BOLT_THUNDER
+  DIVINE_SMITE_KILL:
+    type: KILL_EFFECT
+    effect: LIGHTNING
+    visual-only: false
+    display: "&b⚡ Divine Smite"
+    sound: ENTITY_LIGHTNING_BOLT_IMPACT
+
+  DASH_STRIKE:
+    type: ACTIVE
+    effect: DASH
+    cooldown: 8
+    display: "&c[Right-Click] &7Blood Dash (8s Cooldown)"
+  BLADE_DANCE:
+    type: ACTIVE
+    effect: BLADE_DANCE
+    cooldown: 15
+    display: "&c[Right-Click] &7Blade Dance (15s Cooldown)"
+  MJOLNIR_STRIKE:
+    type: ACTIVE
+    effect: LIGHTNING_STRIKE
+    cooldown: 12
+    display: "&b[Right-Click] &7Mjolnir's Wrath (12s Cooldown)"

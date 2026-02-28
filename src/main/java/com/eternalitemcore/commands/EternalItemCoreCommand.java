@@ -45,6 +45,36 @@ public class EternalItemCoreCommand implements CommandExecutor {
             return true;
         }
 
+        if (sub.equals("togglebroadcast")) {
+            if (!(sender instanceof Player player)) {
+                sender.sendMessage(ChatColor.RED + "Only players can use this command.");
+                return true;
+            }
+            if (!player.hasPermission("eternalitemcore.player")) {
+                player.sendMessage(ChatColor.RED + "You do not have permission.");
+                return true;
+            }
+            ItemStack hand = player.getInventory().getItemInMainHand();
+            if (hand.getType().isAir() || !hand.hasItemMeta()) {
+                player.sendMessage(ChatColor.RED + "You must hold an eternal item in your main hand.");
+                return true;
+            }
+            org.bukkit.persistence.PersistentDataContainer pdc = hand.getItemMeta().getPersistentDataContainer();
+            org.bukkit.NamespacedKey hideBcastKey = new org.bukkit.NamespacedKey(plugin, "hide_broadcasts");
+            byte current = pdc.getOrDefault(hideBcastKey, org.bukkit.persistence.PersistentDataType.BYTE, (byte) 0);
+            
+            org.bukkit.inventory.meta.ItemMeta meta = hand.getItemMeta();
+            if (current == 0) {
+                meta.getPersistentDataContainer().set(hideBcastKey, org.bukkit.persistence.PersistentDataType.BYTE, (byte) 1);
+                player.sendMessage(ChatColor.GREEN + "Broadcasts for this item are now " + ChatColor.RED + "HIDDEN" + ChatColor.GREEN + ".");
+            } else {
+                meta.getPersistentDataContainer().set(hideBcastKey, org.bukkit.persistence.PersistentDataType.BYTE, (byte) 0);
+                player.sendMessage(ChatColor.GREEN + "Broadcasts for this item are now " + ChatColor.AQUA + "VISIBLE" + ChatColor.GREEN + ".");
+            }
+            hand.setItemMeta(meta);
+            return true;
+        }
+
         if (!sender.hasPermission("eternalitemcore.admin")) {
             sender.sendMessage(ChatColor.RED + "You do not have permission to use admin commands.");
             return true;
@@ -119,7 +149,7 @@ public class EternalItemCoreCommand implements CommandExecutor {
                         sender.sendMessage(ChatColor.RED + "Player's held item does not have stat " + statId);
                         return true;
                     }
-                    plugin.getItemDataManager().incrementStat(hand, statId, amount);
+                    plugin.getItemDataManager().incrementStat(p, hand, statId, amount);
                     plugin.getLoreManager().updateLore(hand);
                     sender.sendMessage(ChatColor.GREEN + "Added " + amount + " to " + statId);
                 } else {

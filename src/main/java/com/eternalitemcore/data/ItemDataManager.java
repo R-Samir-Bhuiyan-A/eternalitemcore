@@ -61,13 +61,57 @@ public class ItemDataManager {
         return item.getItemMeta().getPersistentDataContainer().getOrDefault(statValKey, PersistentDataType.INTEGER, 0);
     }
 
-    public void incrementStat(ItemStack item, String statId, int amount) {
-        if (item == null || !item.hasItemMeta()) return;
-        int current = getStatValue(item, statId);
+    public int getRequiredXp(String statId, int currentLevel) {
+        String formula = plugin.getConfig().getString("stats." + statId + ".leveling.formula", "10 * level");
+        try {
+            if (formula.contains("(level ^ 2)")) {
+                int mult = Integer.parseInt(formula.split("\\*")[0].trim());
+                return mult * (currentLevel * currentLevel);
+            } else if (formula.contains("level")) {
+                int mult = Integer.parseInt(formula.split("\\*")[0].trim());
+                return mult * currentLevel;
+            }
+        } catch (Exception e) {
+            // fallback
+        }
+        return currentLevel * 10;
+    }
+
+    public void incrementStat(org.bukkit.entity.Player player, ItemStack item, String statId, int amount) {
+        if (item == null) return;
         ItemMeta meta = item.getItemMeta();
+        if (meta == null) return;
+        
+        int current = getStatValue(item, statId);
+        int currentLevel = getStatLevel(item, statId);
+        int maxLevel = plugin.getConfig().getInt("stats." + statId + ".max-level", 3);
+        
+        int newValue = current + amount;
         NamespacedKey statValKey = new NamespacedKey(plugin, "stat_" + statId);
-        meta.getPersistentDataContainer().set(statValKey, PersistentDataType.INTEGER, current + amount);
+        meta.getPersistentDataContainer().set(statValKey, PersistentDataType.INTEGER, newValue);
         item.setItemMeta(meta);
+
+        if (currentLevel < maxLevel) {
+            int required = getRequiredXp(statId, currentLevel);
+            if (newValue >= required) {
+                setStatLevel(item, statId, currentLevel + 1);
+                
+                NamespacedKey hideBcastKey = new NamespacedKey(plugin, "hide_broadcasts");
+                byte hideBcast = item.getItemMeta().getPersistentDataContainer().getOrDefault(hideBcastKey, PersistentDataType.BYTE, (byte)0);
+                
+                if (hideBcast == 0) {
+                    String bcast = plugin.getConfig().getString("stats." + statId + ".levels." + (currentLevel + 1) + ".broadcast-message");
+                    if (bcast != null && !bcast.isEmpty() && player != null) {
+                        String msg = bcast.replace("%player%", player.getName());
+                        plugin.getServer().broadcastMessage(org.bukkit.ChatColor.translateAlternateColorCodes('&', msg));
+                    }
+                } else if (player != null) {
+                    player.sendMessage(org.bukkit.ChatColor.GREEN + "Your item leveled up silently to Level " + (currentLevel + 1) + "!");
+                }
+            }
+        }
+        
+        plugin.getLoreManager().updateLore(item);
     }
     
     public int getStatLevel(ItemStack item, String statId) {
