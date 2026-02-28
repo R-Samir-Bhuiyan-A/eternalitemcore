@@ -37,7 +37,17 @@ public class StatTrackerListener implements Listener {
 
                 String requiredEvent = statSec.getString("event", "");
 
-                if (event.getEntity() instanceof Player) {
+                if (requiredEvent.equalsIgnoreCase("PROJECTILE_KILL")) {
+                    if (event.getEntity().getLastDamageCause() instanceof org.bukkit.event.entity.EntityDamageByEntityEvent damageEvent) {
+                        if (damageEvent.getDamager() instanceof org.bukkit.entity.Projectile) {
+                            if (!(event.getEntity() instanceof Player) && plugin.getConfig().getBoolean("settings.anti-spawner-farm-kills", true)) {
+                                if (event.getEntity().hasMetadata("from_spawner")) continue;
+                            }
+                            plugin.getItemDataManager().incrementStat(killer, weapon, statId, 1);
+                            triggerKillEffects(killer, weapon, statId, event.getEntity().getLocation());
+                        }
+                    }
+                } else if (event.getEntity() instanceof Player) {
                     if (requiredEvent.equalsIgnoreCase("PLAYER_KILL")) {
                         plugin.getItemDataManager().incrementStat(killer, weapon, statId, 1);
                         triggerKillEffects(killer, weapon, statId, event.getEntity().getLocation());
@@ -53,6 +63,32 @@ public class StatTrackerListener implements Listener {
                         plugin.getItemDataManager().incrementStat(killer, weapon, statId, 1);
                         triggerKillEffects(killer, weapon, statId, event.getEntity().getLocation());
                     }
+                }
+            }
+        }
+    }
+    @EventHandler
+    public void onPlayerDeath(org.bukkit.event.entity.PlayerDeathEvent event) {
+        if (event.getEntity().getKiller() != null) {
+            Player killer = event.getEntity().getKiller();
+            ItemStack weapon = killer.getInventory().getItemInMainHand();
+            if (weapon.getType().isAir()) return;
+
+            java.util.List<String> activeStats = plugin.getItemDataManager().getEnabledStats(weapon);
+            if (activeStats.isEmpty()) return;
+
+            for (String statId : activeStats) {
+                int currentLevel = plugin.getItemDataManager().getStatLevel(weapon, statId);
+                String rawMsg = plugin.getConfig().getString("stats." + statId + ".levels." + currentLevel + ".death-message");
+                if (rawMsg == null || rawMsg.isEmpty()) {
+                    rawMsg = plugin.getConfig().getString("stats." + statId + ".death-message");
+                }
+                
+                if (rawMsg != null && !rawMsg.isEmpty()) {
+                    String msg = rawMsg.replace("%victim%", event.getEntity().getName())
+                                       .replace("%killer%", killer.getName());
+                    event.setDeathMessage(ChatColor.translateAlternateColorCodes('&', msg));
+                    return; // Apply the highest priority custom message and exit
                 }
             }
         }
@@ -94,6 +130,10 @@ public class StatTrackerListener implements Listener {
                 plugin.getItemDataManager().incrementStat(player, tool, statId, 1);
             } else if (requiredEvent.equalsIgnoreCase("DIAMOND_MINE") && event.getBlock().getType().name().contains("DIAMOND_ORE")) {
                 plugin.getItemDataManager().incrementStat(player, tool, statId, 1);
+            } else if (requiredEvent.equalsIgnoreCase("BLOCK_BREAK_CROP") && event.getBlock().getBlockData() instanceof org.bukkit.block.data.Ageable ageable) {
+                if (ageable.getAge() == ageable.getMaximumAge()) {
+                    plugin.getItemDataManager().incrementStat(player, tool, statId, 1);
+                }
             }
         }
     }

@@ -30,7 +30,7 @@ public class EternalItemCoreTabCompleter implements TabCompleter {
         if (args.length == 1) {
             List<String> subCommands = new ArrayList<>();
             if (sender.hasPermission("eternalitemcore.admin")) {
-                subCommands.addAll(Arrays.asList("give", "setlevel", "addstat", "clearstats", "reload"));
+                subCommands.addAll(Arrays.asList("edit", "give", "setlevel", "addstat", "clearstats", "reload"));
             }
             if (sender.hasPermission("eternalitemcore.player")) {
                 subCommands.addAll(Arrays.asList("toggleeffects", "togglebroadcast", "viewstats"));

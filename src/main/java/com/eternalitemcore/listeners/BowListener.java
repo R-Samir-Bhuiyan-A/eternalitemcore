@@ -30,6 +30,15 @@ public class BowListener implements Listener {
         this.plugin = plugin;
     }
 
+    private String getAbilityTrigger(ConfigurationSection ability) {
+        if (ability.contains("trigger")) return ability.getString("trigger").toUpperCase();
+        String type = ability.getString("type", "").toUpperCase();
+        if ("ACTIVE".equals(type)) return "RIGHT_CLICK";
+        if ("SNEAK_ACTIVE".equals(type)) return "SNEAK";
+        if ("BOW_ACTIVE".equals(type)) return "BOW_SHOOT";
+        return "NONE";
+    }
+
     @EventHandler
     public void onBowShoot(EntityShootBowEvent event) {
         if (!(event.getEntity() instanceof Player player)) return;
@@ -48,15 +57,18 @@ public class BowListener implements Listener {
                     String abilityId = levelSec.getString("ability-unlock");
                     ConfigurationSection abilitySec = plugin.getConfig().getConfigurationSection("ability-cores." + abilityId);
                     
-                    if (abilitySec != null && "BOW_ACTIVE".equalsIgnoreCase(abilitySec.getString("type"))) {
-                        String effectName = abilitySec.getString("effect");
-                        if (effectName != null) {
-                            int maxCharges = abilitySec.getInt("max-charges", 1);
-                            int cooldown = abilitySec.getInt("cooldown", 10);
-                            double damage = abilitySec.getDouble("damage", 10.0);
-                            
-                            if (tryConsumeCharge(player, abilityId, maxCharges, cooldown)) {
-                                executeBowAbility(player, event.getProjectile(), effectName, damage);
+                    if (abilitySec != null) {
+                        String trigger = getAbilityTrigger(abilitySec);
+                        if (trigger.equals("BOW_SHOOT")) {
+                            String effectName = abilitySec.getString("effect");
+                            if (effectName != null) {
+                                int maxCharges = abilitySec.getInt("max-charges", 1);
+                                int cooldown = abilitySec.getInt("cooldown", 10);
+                                double damage = abilitySec.getDouble("damage", 10.0);
+                                
+                                if (tryConsumeCharge(player, abilityId, maxCharges, cooldown)) {
+                                    executeBowAbility(player, event.getProjectile(), effectName, damage);
+                                }
                             }
                         }
                     }

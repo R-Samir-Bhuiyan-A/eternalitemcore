@@ -21,6 +21,7 @@ public class EternalItemCore extends JavaPlugin {
     private PlayerSettingsManager playerSettingsManager;
     private LoreManager loreManager;
     private AbilityManager abilityManager;
+    private com.eternalitemcore.gui.AdminGUIManager adminGUIManager;
 
 
     @Override
@@ -34,6 +35,7 @@ public class EternalItemCore extends JavaPlugin {
         this.playerSettingsManager = new PlayerSettingsManager(this);
         this.loreManager = new LoreManager(this);
         this.abilityManager = new AbilityManager(this);
+        this.adminGUIManager = new com.eternalitemcore.gui.AdminGUIManager(this);
 
         getCommand("eternalitemcore").setExecutor(new EternalItemCoreCommand(this));
         getCommand("eternalitemcore").setTabCompleter(new EternalItemCoreTabCompleter(this));
@@ -45,6 +47,7 @@ public class EternalItemCore extends JavaPlugin {
         pluginManager.registerEvents(new StatTrackerListener(this), this);
         pluginManager.registerEvents(new com.eternalitemcore.listeners.ActiveAbilityListener(this), this);
         pluginManager.registerEvents(new com.eternalitemcore.listeners.BowListener(this), this);
+        pluginManager.registerEvents(new com.eternalitemcore.gui.AdminGUIListener(this), this);
 
         getServer().getScheduler().runTaskTimer(this, new com.eternalitemcore.utils.AbilityTickManager(this), 20L, 20L);
 
@@ -82,5 +85,9 @@ public class EternalItemCore extends JavaPlugin {
 
     public PlayerSettingsManager getPlayerSettingsManager() {
         return playerSettingsManager;
+    }
+
+    public com.eternalitemcore.gui.AdminGUIManager getAdminGUIManager() {
+        return adminGUIManager;
     }
 }

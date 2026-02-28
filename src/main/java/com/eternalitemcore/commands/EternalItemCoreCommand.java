@@ -109,6 +109,14 @@ public class EternalItemCoreCommand implements CommandExecutor {
         }
         
         switch (sub) {
+            case "edit":
+                if (sender instanceof Player p) {
+                    plugin.getAdminGUIManager().openMainMenu(p);
+                } else {
+                    sender.sendMessage(ChatColor.RED + "Only players can open the Admin GUI.");
+                }
+                break;
+                
             case "give":
                 if (args.length == 3) {
                     Player target = plugin.getServer().getPlayer(args[1]);
@@ -235,6 +243,7 @@ public class EternalItemCoreCommand implements CommandExecutor {
             sender.sendMessage(ChatColor.YELLOW + "/eicore togglebroadcast" + ChatColor.GRAY + " - Toggle global level-up messages for held item.");
         }
         if (sender.hasPermission("eternalitemcore.admin")) {
+            sender.sendMessage(ChatColor.YELLOW + "/eicore edit" + ChatColor.GRAY + " - Open the Item Mastery Admin GUI (Edit Cores/Abilities).");
             sender.sendMessage(ChatColor.YELLOW + "/eicore give <player> <core_id>" + ChatColor.GRAY + " - Give a specific core to a player.");
             sender.sendMessage(ChatColor.YELLOW + "/eicore setlevel <player> <stat_id> <level>" + ChatColor.GRAY + " - Force set an item's stat level.");
             sender.sendMessage(ChatColor.YELLOW + "/eicore addstat <player> <stat_id> <amount>" + ChatColor.GRAY + " - Add raw stat value (XP) to an item.");

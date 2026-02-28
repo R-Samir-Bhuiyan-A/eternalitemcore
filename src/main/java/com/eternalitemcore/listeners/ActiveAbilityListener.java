@@ -12,6 +12,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -31,83 +33,94 @@ public class ActiveAbilityListener implements Listener {
         this.plugin = plugin;
     }
 
-    @EventHandler
-    public void onInteract(PlayerInteractEvent event) {
-        if (event.getAction() != Action.RIGHT_CLICK_AIR && event.getAction() != Action.RIGHT_CLICK_BLOCK) {
-            return;
-        }
+    private String getAbilityTrigger(ConfigurationSection ability) {
+        if (ability.contains("trigger")) return ability.getString("trigger").toUpperCase();
+        String type = ability.getString("type", "").toUpperCase();
+        if ("ACTIVE".equals(type)) return "RIGHT_CLICK";
+        if ("SNEAK_ACTIVE".equals(type)) return "SNEAK";
+        if ("BOW_ACTIVE".equals(type)) return "BOW_SHOOT";
+        return "NONE";
+    }
 
-        Player player = event.getPlayer();
-        ItemStack item = player.getInventory().getItemInMainHand();
+    private boolean processTrigger(Player player, ItemStack item, String triggerAction) {
+        if (item == null || item.getType().isAir()) return false;
         
-        if (item.getType().isAir()) return;
-
         List<String> enabledStats = plugin.getItemDataManager().getEnabledStats(item);
-        if (enabledStats.isEmpty()) return;
-
-        boolean triggeredAbility = false;
-
+        if (enabledStats.isEmpty()) return false;
+        
+        boolean triggeredAny = false;
+        
         for (String statId : enabledStats) {
             int currentLevel = plugin.getItemDataManager().getStatLevel(item, statId);
-            
-            // Check all levels up to the current level to see if passive abilities are unlocked
             for (int i = 1; i <= currentLevel; i++) {
                 ConfigurationSection levelSec = plugin.getConfig().getConfigurationSection("stats." + statId + ".levels." + i);
                 if (levelSec != null && levelSec.contains("ability-unlock")) {
                     String abilityCoreId = levelSec.getString("ability-unlock");
                     ConfigurationSection abilitySec = plugin.getConfig().getConfigurationSection("ability-cores." + abilityCoreId);
                     
-                    if (abilitySec != null && "ACTIVE".equalsIgnoreCase(abilitySec.getString("type"))) {
-                        String effectName = abilitySec.getString("effect");
-                        int cooldownSeconds = abilitySec.getInt("cooldown", 10);
-                        
-                        if (effectName != null) {
-                            double damage = abilitySec.getDouble("damage", 25.0);
-                            if (invokeActiveAbility(player, abilityCoreId, effectName, cooldownSeconds, damage)) {
-                                triggeredAbility = true;
+                    if (abilitySec != null) {
+                        String reqTrigger = getAbilityTrigger(abilitySec);
+                        if (reqTrigger.equals(triggerAction)) {
+                            // Valid trigger! Fire ability.
+                            String effectName = abilitySec.getString("effect");
+                            int cooldownSeconds = abilitySec.getInt("cooldown", 10);
+                            if (effectName != null) {
+                                double damage = abilitySec.getDouble("damage", 25.0);
+                                if (invokeActiveAbility(player, abilityCoreId, effectName, cooldownSeconds, damage)) {
+                                    triggeredAny = true;
+                                }
                             }
                         }
                     }
                 }
             }
         }
+        return triggeredAny;
+    }
+
+    @EventHandler
+    public void onInteract(PlayerInteractEvent event) {
+        Player player = event.getPlayer();
+        ItemStack item = player.getInventory().getItemInMainHand();
+        String action = "";
         
-        if (triggeredAbility) {
+        if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) action = "RIGHT_CLICK";
+        if (event.getAction() == Action.LEFT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_BLOCK) action = "LEFT_CLICK";
+        
+        if (action.isEmpty()) return;
+        
+        if (processTrigger(player, item, action)) {
             event.setCancelled(true);
         }
     }
 
     @EventHandler
     public void onSneak(PlayerToggleSneakEvent event) {
-        if (!event.isSneaking()) return; // Only trigger when starting to sneak
-
+        if (!event.isSneaking()) return;
         Player player = event.getPlayer();
-        ItemStack helmet = player.getInventory().getHelmet();
+        // Sneak prioritizes Helmet first, then mainhand
+        ItemStack armor = player.getInventory().getHelmet();
+        if (processTrigger(player, armor, "SNEAK")) return;
         
-        if (helmet == null || helmet.getType().isAir()) return;
+        ItemStack hand = player.getInventory().getItemInMainHand();
+        processTrigger(player, hand, "SNEAK");
+    }
 
-        List<String> enabledStats = plugin.getItemDataManager().getEnabledStats(helmet);
-        if (enabledStats.isEmpty()) return;
+    @EventHandler
+    public void onSwapHand(PlayerSwapHandItemsEvent event) {
+        Player player = event.getPlayer();
+        ItemStack item = player.getInventory().getItemInMainHand();
+        if (processTrigger(player, item, "SWAP_HANDS")) {
+            event.setCancelled(true);
+        }
+    }
 
-        for (String statId : enabledStats) {
-            int currentLevel = plugin.getItemDataManager().getStatLevel(helmet, statId);
-            for (int i = 1; i <= currentLevel; i++) {
-                ConfigurationSection levelSec = plugin.getConfig().getConfigurationSection("stats." + statId + ".levels." + i);
-                if (levelSec != null && levelSec.contains("ability-unlock")) {
-                    String abilityCoreId = levelSec.getString("ability-unlock");
-                    ConfigurationSection abilitySec = plugin.getConfig().getConfigurationSection("ability-cores." + abilityCoreId);
-                    
-                    if (abilitySec != null && "SNEAK_ACTIVE".equalsIgnoreCase(abilitySec.getString("type"))) {
-                        String effectName = abilitySec.getString("effect");
-                        int cooldownSeconds = abilitySec.getInt("cooldown", 20);
-                        
-                        if (effectName != null) {
-                            double damage = abilitySec.getDouble("damage", 30.0);
-                            invokeActiveAbility(player, abilityCoreId, effectName, cooldownSeconds, damage);
-                        }
-                    }
-                }
-            }
+    @EventHandler
+    public void onDropItem(PlayerDropItemEvent event) {
+        Player player = event.getPlayer();
+        ItemStack item = event.getItemDrop().getItemStack();
+        if (processTrigger(player, item, "DROP_ITEM")) {
+            event.setCancelled(true);
         }
     }
 

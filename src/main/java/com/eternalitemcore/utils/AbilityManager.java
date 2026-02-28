@@ -109,6 +109,41 @@ public class AbilityManager {
                         start.getWorld().spawnParticle(Particle.REDSTONE, start, 5, 0.2, 0.2, 0.2, new Particle.DustOptions(org.bukkit.Color.RED, 1.5f));
                     }
                 }.runTaskTimer(plugin, 0L, 1L);
+            } else if (effectName != null && effectName.equalsIgnoreCase("SOUL_FIRE_PILLAR")) {
+                new org.bukkit.scheduler.BukkitRunnable() {
+                    double height = 0;
+                    public void run() {
+                        height += 0.5;
+                        loc.getWorld().spawnParticle(Particle.SOUL_FIRE_FLAME, loc.clone().add(0, height, 0), 10, 0.2, 0, 0.2, 0.05);
+                        loc.getWorld().spawnParticle(Particle.SOUL, loc.clone().add(0, height, 0), 2, 0.2, 0, 0.2, 0.02);
+                        if (height > 5.0) this.cancel();
+                    }
+                }.runTaskTimer(plugin, 0L, 1L);
+            } else if (effectName != null && effectName.equalsIgnoreCase("SHADOW_ERUPTION")) {
+                loc.getWorld().spawnParticle(Particle.SQUID_INK, loc.clone().add(0, 1, 0), 100, 1.0, 1.0, 1.0, 0.1);
+                loc.getWorld().spawnParticle(Particle.DRAGON_BREATH, loc.clone().add(0, 1, 0), 50, 0.5, 0.5, 0.5, 0.05);
+                loc.getWorld().playSound(loc, Sound.ENTITY_ENDER_DRAGON_GROWL, 1.0f, 0.5f);
+            } else if (effectName != null && effectName.equalsIgnoreCase("VOID_IMPLOSION")) {
+                new org.bukkit.scheduler.BukkitRunnable() {
+                    double radius = 5.0;
+                    public void run() {
+                        radius -= 0.5;
+                        if (radius <= 0) {
+                            loc.getWorld().playSound(loc, Sound.ENTITY_GENERIC_EXPLODE, 2.0f, 0.5f);
+                            loc.getWorld().spawnParticle(Particle.SONIC_BOOM, loc.clone().add(0, 1, 0), 1);
+                            this.cancel();
+                            return;
+                        }
+                        for (double theta = 0; theta < Math.PI * 2; theta += Math.PI / 4) {
+                            for (double phi = 0; phi < Math.PI; phi += Math.PI / 4) {
+                                double x = radius * Math.sin(phi) * Math.cos(theta);
+                                double y = radius * Math.cos(phi) + 1.0;
+                                double z = radius * Math.sin(phi) * Math.sin(theta);
+                                loc.getWorld().spawnParticle(Particle.END_ROD, loc.clone().add(x, y, z), 1, 0, 0, 0, 0);
+                            }
+                        }
+                    }
+                }.runTaskTimer(plugin, 0L, 1L);
             }
         }
     }

@@ -103,6 +103,7 @@ public class CoreApplyListener implements Listener {
         if (name.endsWith("_SWORD")) return "SWORD";
         if (name.endsWith("_PICKAXE")) return "PICKAXE";
         if (name.endsWith("_AXE")) return "AXE";
+        if (name.endsWith("_HOE")) return "HOE";
         if (name.endsWith("_SPADE") || name.endsWith("_SHOVEL")) return "SHOVEL";
         if (name.endsWith("_HELMET")) return "HELMET";
         if (name.endsWith("_CHESTPLATE")) return "CHESTPLATE";
@@ -157,7 +158,14 @@ public class CoreApplyListener implements Listener {
                         String eventStr = statConfig.getString("event", "Trigger").replace("_", " ");
                         page.append("\n\n");
                         page.append(ChatColor.translateAlternateColorCodes('&', "&8&lTo Reach Level " + (i + 1) + ":\n"));
-                        page.append(ChatColor.translateAlternateColorCodes('&', "&7" + reqXp + " " + eventStr));
+                        page.append(ChatColor.translateAlternateColorCodes('&', "&70 / " + reqXp + " " + eventStr));
+                        
+                        org.bukkit.configuration.ConfigurationSection nextLvlConfig = statConfig.getConfigurationSection("levels." + (i + 1));
+                        if (nextLvlConfig != null && nextLvlConfig.contains("ability-unlock")) {
+                            String nextAbilityId = nextLvlConfig.getString("ability-unlock");
+                            String nextAbilityName = plugin.getConfig().getString("ability-cores." + nextAbilityId + ".display", nextAbilityId);
+                            page.append(ChatColor.translateAlternateColorCodes('&', "\n&5&oNext Unlock:\n" + nextAbilityName));
+                        }
                     }
                     
                     meta.addPage(page.toString());
