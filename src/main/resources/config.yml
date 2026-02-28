@@ -372,6 +372,24 @@ ability-cores:
     amplifier: 1
     display: "&b✦ Storm's Agility II"
     description: "Grants continuous Speed II while holding this item."
+  HAWK_EYE:
+    type: PASSIVE
+    effect: NIGHT_VISION
+    amplifier: 0
+    display: "&6✦ Hawk Eye I"
+    description: "Grants continuous Night Vision while holding this item."
+  BERSERKER:
+    type: PASSIVE
+    effect: FAST_DIGGING
+    amplifier: 1
+    display: "&c✦ Berserker's Rage I"
+    description: "Grants Haste II while wielding this Axe."
+  NATURES_GIFT:
+    type: PASSIVE
+    effect: SATURATION
+    amplifier: 0
+    display: "&a✦ Nature's Blessing I"
+    description: "Prevents hunger loss while wielding this Hoe."
 
   VAMPIRE_BITE:
     type: KILL_EFFECT
@@ -410,6 +428,13 @@ ability-cores:
     display: "&b⚡ Divine Smite"
     sound: ENTITY_LIGHTNING_BOLT_IMPACT
     description: "A destructive lightning bolt violently smites your slain foes."
+  ARROW_RAIN:
+    type: KILL_EFFECT
+    effect: ARROW_RAIN
+    visual-only: true
+    display: "&e🏹 Arrow Rain"
+    sound: ITEM_CROSSBOW_SHOOT
+    description: "A visually aesthetic volley of arrows rains down upon the corpse of your target."
 
   DASH_STRIKE:
     type: ACTIVE
@@ -431,3 +456,42 @@ ability-cores:
     damage: 25.0
     display: "&b[Right-Click] &7Mjolnir's Wrath (12s Cooldown)"
     description: "Right-Click to cast lightning out of the sky onto the block or entity you are aiming at."
+
+  EXPLOSIVE_SHOT:
+    type: BOW_ACTIVE
+    effect: EXPLOSIVE_SHOT
+    max-charges: 2
+    cooldown: 8
+    damage: 15.0
+    display: "&c[Shoot] &7Explosive Arrow (2 Charges, 8s Reload)"
+    description: "Firing an arrow consumes a charge. The arrow unleashes a devastating explosion upon impact."
+  VOLLEY_SHOT:
+    type: BOW_ACTIVE
+    effect: VOLLEY
+    max-charges: 1
+    cooldown: 4
+    damage: 0.0
+    display: "&f[Shoot] &7Volley (1 Charge, 4s Reload)"
+    description: "Firing an arrow conjures 4 additional phantom arrows in a wide spread."
+
+  EARTHQUAKE_CLEAVE:
+    type: ACTIVE
+    effect: EARTHQUAKE_CLEAVE
+    cooldown: 20
+    damage: 30.0
+    display: "&c[Right-Click] &7Earthquake Cleave (20s Cooldown)"
+    description: "Right-Click to smash the earth, launching and heavily damaging all nearby enemies."
+  GRAND_HARVEST:
+    type: ACTIVE
+    effect: GRAND_HARVEST
+    cooldown: 5
+    damage: 0.0
+    display: "&a[Right-Click] &7Grand Harvest (5s Cooldown)"
+    description: "Right-Click to instantly grow all crops with bonemeal in a 5 block radius."
+  SONIC_BOOM:
+    type: SNEAK_ACTIVE
+    effect: SONIC_BOOM
+    cooldown: 20
+    damage: 50.0
+    display: "&9[Sneak] &7Warden's Call (20s Cooldown)"
+    description: "Sneak (Shift) to unleash a devastating Sonic Boom in the direction you are looking. Grants Blindness for 3s."

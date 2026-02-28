@@ -11,7 +11,11 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+import org.bukkit.util.Vector;
 
 import java.util.HashMap;
 import java.util.List;
@@ -73,6 +77,40 @@ public class ActiveAbilityListener implements Listener {
         }
     }
 
+    @EventHandler
+    public void onSneak(PlayerToggleSneakEvent event) {
+        if (!event.isSneaking()) return; // Only trigger when starting to sneak
+
+        Player player = event.getPlayer();
+        ItemStack helmet = player.getInventory().getHelmet();
+        
+        if (helmet == null || helmet.getType().isAir()) return;
+
+        List<String> enabledStats = plugin.getItemDataManager().getEnabledStats(helmet);
+        if (enabledStats.isEmpty()) return;
+
+        for (String statId : enabledStats) {
+            int currentLevel = plugin.getItemDataManager().getStatLevel(helmet, statId);
+            for (int i = 1; i <= currentLevel; i++) {
+                ConfigurationSection levelSec = plugin.getConfig().getConfigurationSection("stats." + statId + ".levels." + i);
+                if (levelSec != null && levelSec.contains("ability-unlock")) {
+                    String abilityCoreId = levelSec.getString("ability-unlock");
+                    ConfigurationSection abilitySec = plugin.getConfig().getConfigurationSection("ability-cores." + abilityCoreId);
+                    
+                    if (abilitySec != null && "SNEAK_ACTIVE".equalsIgnoreCase(abilitySec.getString("type"))) {
+                        String effectName = abilitySec.getString("effect");
+                        int cooldownSeconds = abilitySec.getInt("cooldown", 20);
+                        
+                        if (effectName != null) {
+                            double damage = abilitySec.getDouble("damage", 30.0);
+                            invokeActiveAbility(player, abilityCoreId, effectName, cooldownSeconds, damage);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     private boolean invokeActiveAbility(Player player, String abilityId, String effectName, int cooldownSeconds, double damage) {
         UUID pId = player.getUniqueId();
         cooldowns.putIfAbsent(pId, new HashMap<>());
@@ -114,6 +152,55 @@ public class ActiveAbilityListener implements Listener {
             for (org.bukkit.entity.Entity entity : player.getNearbyEntities(6, 3, 6)) {
                 if (entity instanceof org.bukkit.entity.Damageable damageable && entity != player) {
                     damageable.damage(damage, player); // Configurable dynamic damage
+                }
+            }
+            success = true;
+        } else if (effectName.equalsIgnoreCase("EARTHQUAKE_CLEAVE")) {
+            player.playSound(player.getLocation(), org.bukkit.Sound.ENTITY_GENERIC_EXPLODE, 1.0f, 0.5f);
+            player.getWorld().spawnParticle(org.bukkit.Particle.EXPLOSION_LARGE, player.getLocation(), 2);
+            for (org.bukkit.entity.Entity entity : player.getNearbyEntities(5, 3, 5)) {
+                if (entity instanceof org.bukkit.entity.Damageable damageable && entity != player) {
+                    damageable.damage(damage, player);
+                    entity.setVelocity(new org.bukkit.util.Vector(0, 1.2, 0)); // Launch enemies
+                }
+            }
+            success = true;
+        } else if (effectName.equalsIgnoreCase("SONIC_BOOM")) {
+            // Warden Sonic Boom logic
+            org.bukkit.util.RayTraceResult result = player.getWorld().rayTraceBlocks(player.getEyeLocation(), player.getEyeLocation().getDirection(), 15);
+            org.bukkit.Location strikeLoc = (result != null && result.getHitBlock() != null) 
+                ? result.getHitBlock().getLocation() 
+                : player.getEyeLocation().add(player.getEyeLocation().getDirection().multiply(15));
+            
+            player.getWorld().spawnParticle(org.bukkit.Particle.SONIC_BOOM, player.getEyeLocation().add(player.getEyeLocation().getDirection()), 1);
+            player.playSound(player.getLocation(), org.bukkit.Sound.ENTITY_WARDEN_SONIC_BOOM, 3.0f, 1.0f);
+            
+            // Give self blindness
+            player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 60, 0)); // 3 seconds
+            
+            for (org.bukkit.entity.Entity entity : player.getWorld().getNearbyEntities(strikeLoc, 3, 3, 3)) {
+                if (entity instanceof org.bukkit.entity.Damageable damageable && entity != player) {
+                    damageable.damage(damage, player);
+                    Vector kb = entity.getLocation().toVector().subtract(player.getLocation().toVector()).normalize().multiply(2.0);
+                    entity.setVelocity(kb.setY(0.5));
+                }
+            }
+            success = true;
+        } else if (effectName.equalsIgnoreCase("GRAND_HARVEST")) {
+            player.playSound(player.getLocation(), org.bukkit.Sound.ITEM_BONE_MEAL_USE, 1.0f, 1.0f);
+            player.getWorld().spawnParticle(org.bukkit.Particle.VILLAGER_HAPPY, player.getLocation(), 30, 3, 1, 3);
+            
+            int radius = 5;
+            for (int x = -radius; x <= radius; x++) {
+                for (int y = -2; y <= 2; y++) {
+                    for (int z = -radius; z <= radius; z++) {
+                        org.bukkit.block.Block block = player.getLocation().getBlock().getRelative(x, y, z);
+                        if (block.getBlockData() instanceof org.bukkit.block.data.Ageable crop) {
+                            crop.setAge(crop.getMaximumAge());
+                            block.setBlockData(crop);
+                            block.getWorld().spawnParticle(org.bukkit.Particle.COMPOSTER, block.getLocation().add(0.5, 0.5, 0.5), 5, 0.3, 0.3, 0.3, 0);
+                        }
+                    }
                 }
             }
             success = true;
