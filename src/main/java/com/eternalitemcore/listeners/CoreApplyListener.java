@@ -121,7 +121,11 @@ public class CoreApplyListener implements Listener {
         org.bukkit.inventory.meta.BookMeta meta = (org.bukkit.inventory.meta.BookMeta) book.getItemMeta();
         
         if (meta != null) {
-            meta.setTitle(plugin.getLoreManager().color("&6Tome of " + display));
+            String plainTitle = ChatColor.stripColor(plugin.getLoreManager().color(display));
+            if (plainTitle.length() > 20) {
+                plainTitle = plainTitle.substring(0, 20); // Prevent 32 char limit crash
+            }
+            meta.setTitle(ChatColor.GOLD + "Tome of " + plainTitle);
             meta.setAuthor("Eternal Item Core");
             
             int maxLevel = statConfig.getInt("max-level", 5);

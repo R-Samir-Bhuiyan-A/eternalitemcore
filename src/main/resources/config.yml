@@ -421,11 +421,13 @@ ability-cores:
     type: ACTIVE
     effect: BLADE_DANCE
     cooldown: 15
+    damage: 25.0
     display: "&c[Right-Click] &7Blade Dance (15s Cooldown)"
     description: "Right-Click to unleash a flurry of sweeping strikes, damaging all nearby entities."
   MJOLNIR_STRIKE:
     type: ACTIVE
     effect: LIGHTNING_STRIKE
     cooldown: 12
+    damage: 25.0
     display: "&b[Right-Click] &7Mjolnir's Wrath (12s Cooldown)"
     description: "Right-Click to cast lightning out of the sky onto the block or entity you are aiming at."

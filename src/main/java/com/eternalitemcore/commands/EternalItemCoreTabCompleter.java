@@ -30,15 +30,15 @@ public class EternalItemCoreTabCompleter implements TabCompleter {
         if (args.length == 1) {
             List<String> subCommands = new ArrayList<>();
             if (sender.hasPermission("eternalitemcore.admin")) {
-                subCommands.addAll(Arrays.asList("give", "setlevel", "addstat"));
+                subCommands.addAll(Arrays.asList("give", "setlevel", "addstat", "clearstats", "reload"));
             }
             if (sender.hasPermission("eternalitemcore.player")) {
-                subCommands.add("toggleeffects");
+                subCommands.addAll(Arrays.asList("toggleeffects", "togglebroadcast", "viewstats"));
             }
             completions.addAll(subCommands.stream()
                     .filter(c -> c.startsWith(args[0].toLowerCase()))
                     .collect(Collectors.toList()));
-        } else if (args.length == 2 && sender.hasPermission("eternalitemcore.admin")) {
+        } else if (args.length == 2 && sender.hasPermission("eternalitemcore.admin") && !args[0].equalsIgnoreCase("reload")) {
             completions.addAll(plugin.getServer().getOnlinePlayers().stream()
                     .map(Player::getName)
                     .filter(n -> n.toLowerCase().startsWith(args[1].toLowerCase()))

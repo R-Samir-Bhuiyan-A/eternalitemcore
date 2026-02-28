@@ -58,7 +58,8 @@ public class ActiveAbilityListener implements Listener {
                         int cooldownSeconds = abilitySec.getInt("cooldown", 10);
                         
                         if (effectName != null) {
-                            if (invokeActiveAbility(player, abilityCoreId, effectName, cooldownSeconds)) {
+                            double damage = abilitySec.getDouble("damage", 25.0);
+                            if (invokeActiveAbility(player, abilityCoreId, effectName, cooldownSeconds, damage)) {
                                 triggeredAbility = true;
                             }
                         }
@@ -72,7 +73,7 @@ public class ActiveAbilityListener implements Listener {
         }
     }
 
-    private boolean invokeActiveAbility(Player player, String abilityId, String effectName, int cooldownSeconds) {
+    private boolean invokeActiveAbility(Player player, String abilityId, String effectName, int cooldownSeconds, double damage) {
         UUID pId = player.getUniqueId();
         cooldowns.putIfAbsent(pId, new HashMap<>());
         
@@ -96,6 +97,12 @@ public class ActiveAbilityListener implements Listener {
                 ? result.getHitBlock().getLocation() 
                 : player.getEyeLocation().add(player.getEyeLocation().getDirection().multiply(30));
             strikeLoc.getWorld().strikeLightning(strikeLoc);
+            // Apply heavy independent AoE damage
+            for (org.bukkit.entity.Entity entity : strikeLoc.getWorld().getNearbyEntities(strikeLoc, 4, 4, 4)) {
+                if (entity instanceof org.bukkit.entity.Damageable damageable && entity != player) {
+                    damageable.damage(damage, player);
+                }
+            }
             success = true;
         } else if (effectName.equalsIgnoreCase("DASH")) {
             player.setVelocity(player.getLocation().getDirection().multiply(1.5).setY(0.5));
@@ -104,9 +111,9 @@ public class ActiveAbilityListener implements Listener {
         } else if (effectName.equalsIgnoreCase("BLADE_DANCE")) {
             player.playSound(player.getLocation(), org.bukkit.Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1.0f, 1.0f);
             player.getWorld().spawnParticle(org.bukkit.Particle.SWEEP_ATTACK, player.getLocation().add(0, 1, 0), 10, 2, 0.5, 2, 0);
-            for (org.bukkit.entity.Entity entity : player.getNearbyEntities(4, 2, 4)) {
+            for (org.bukkit.entity.Entity entity : player.getNearbyEntities(6, 3, 6)) {
                 if (entity instanceof org.bukkit.entity.Damageable damageable && entity != player) {
-                    damageable.damage(8.0, player);
+                    damageable.damage(damage, player); // Configurable dynamic damage
                 }
             }
             success = true;

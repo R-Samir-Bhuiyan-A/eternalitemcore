@@ -70,8 +70,6 @@ public class StatTrackerListener implements Listener {
                 
                 if (abilityConfig != null && abilityConfig.getString("type", "").equalsIgnoreCase("KILL_EFFECT")) {
                     plugin.getAbilityManager().triggerAbility(player, abilityCoreId, loc);
-                    // Break so we don't trigger lower-level kill effects
-                    break;
                 }
             }
         }

@@ -45,6 +45,34 @@ public class EternalItemCoreCommand implements CommandExecutor {
             return true;
         }
 
+        if (sub.equals("viewstats")) {
+            if (!(sender instanceof Player player)) {
+                sender.sendMessage(ChatColor.RED + "Only players can use this command.");
+                return true;
+            }
+            if (!player.hasPermission("eternalitemcore.player")) {
+                player.sendMessage(ChatColor.RED + "You do not have permission.");
+                return true;
+            }
+            ItemStack hand = player.getInventory().getItemInMainHand();
+            if (hand.getType().isAir() || !hand.hasItemMeta()) {
+                player.sendMessage(ChatColor.RED + "You must hold an eternal item in your main hand.");
+                return true;
+            }
+            java.util.List<String> stats = plugin.getItemDataManager().getEnabledStats(hand);
+            if (stats.isEmpty()) {
+                player.sendMessage(ChatColor.YELLOW + "This item has no tracked stats.");
+                return true;
+            }
+            player.sendMessage(ChatColor.GOLD + "=== Item Stats ===");
+            for (String stat : stats) {
+                int level = plugin.getItemDataManager().getStatLevel(hand, stat);
+                int val = plugin.getItemDataManager().getStatValue(hand, stat);
+                player.sendMessage(ChatColor.AQUA + " - " + stat + ": Level " + level + " | Value: " + val);
+            }
+            return true;
+        }
+
         if (sub.equals("togglebroadcast")) {
             if (!(sender instanceof Player player)) {
                 sender.sendMessage(ChatColor.RED + "Only players can use this command.");
@@ -156,6 +184,40 @@ public class EternalItemCoreCommand implements CommandExecutor {
                     sender.sendMessage(ChatColor.RED + "Usage: /eicore addstat <player> <stat_id> <amount>");
                 }
                 break;
+
+            case "clearstats":
+                if (args.length == 2 && sender instanceof Player) {
+                    Player p = plugin.getServer().getPlayer(args[1]);
+                    if (p == null) {
+                        sender.sendMessage(ChatColor.RED + "Player not found.");
+                        return true;
+                    }
+                    ItemStack hand = p.getInventory().getItemInMainHand();
+                    if (hand.getType().isAir() || !hand.hasItemMeta()) {
+                        sender.sendMessage(ChatColor.RED + "Target player is not holding a valid item.");
+                        return true;
+                    }
+                    org.bukkit.persistence.PersistentDataContainer pdc = hand.getItemMeta().getPersistentDataContainer();
+                    org.bukkit.NamespacedKey key = new org.bukkit.NamespacedKey(plugin, "enabled_stats");
+                    if (pdc.has(key, org.bukkit.persistence.PersistentDataType.STRING)) {
+                        org.bukkit.inventory.meta.ItemMeta m = hand.getItemMeta();
+                        m.getPersistentDataContainer().remove(key);
+                        hand.setItemMeta(m);
+                        plugin.getLoreManager().updateLore(hand);
+                        sender.sendMessage(ChatColor.GREEN + "Cleared all stats from " + p.getName() + "'s held item.");
+                    } else {
+                        sender.sendMessage(ChatColor.YELLOW + "That item has no stats to clear.");
+                    }
+                } else {
+                    sender.sendMessage(ChatColor.RED + "Usage: /eicore clearstats <player>");
+                }
+                break;
+
+            case "reload":
+                plugin.reloadConfig();
+                plugin.getConfigManager().loadConfig();
+                sender.sendMessage(ChatColor.GREEN + "EternalItemCore configuration reloaded successfully!");
+                break;
                 
             default:
                 sendHelp(sender);
@@ -169,11 +231,15 @@ public class EternalItemCoreCommand implements CommandExecutor {
         sender.sendMessage(ChatColor.GOLD + "=== EternalItemCore ===");
         if (sender.hasPermission("eternalitemcore.player")) {
             sender.sendMessage(ChatColor.YELLOW + "/eicore toggleeffects" + ChatColor.GRAY + " - Toggle your own kill visual effects.");
+            sender.sendMessage(ChatColor.YELLOW + "/eicore viewstats" + ChatColor.GRAY + " - View exact stats on your held weapon.");
+            sender.sendMessage(ChatColor.YELLOW + "/eicore togglebroadcast" + ChatColor.GRAY + " - Toggle global level-up messages for held item.");
         }
         if (sender.hasPermission("eternalitemcore.admin")) {
-            sender.sendMessage(ChatColor.YELLOW + "/eicore give <player> <core_id>");
-            sender.sendMessage(ChatColor.YELLOW + "/eicore setlevel <player> <stat_id> <level>");
-            sender.sendMessage(ChatColor.YELLOW + "/eicore addstat <player> <stat_id> <amount>");
+            sender.sendMessage(ChatColor.YELLOW + "/eicore give <player> <core_id>" + ChatColor.GRAY + " - Give a specific core to a player.");
+            sender.sendMessage(ChatColor.YELLOW + "/eicore setlevel <player> <stat_id> <level>" + ChatColor.GRAY + " - Force set an item's stat level.");
+            sender.sendMessage(ChatColor.YELLOW + "/eicore addstat <player> <stat_id> <amount>" + ChatColor.GRAY + " - Add raw stat value (XP) to an item.");
+            sender.sendMessage(ChatColor.YELLOW + "/eicore clearstats <player>" + ChatColor.GRAY + " - Wipe all stats from a player's held item.");
+            sender.sendMessage(ChatColor.YELLOW + "/eicore reload" + ChatColor.GRAY + " - Reloads config.yml from disk.");
         }
     }
 }
