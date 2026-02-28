@@ -34,11 +34,13 @@ public class ItemDataManager {
     }
 
     public void addEnabledStat(ItemStack item, String statId) {
-        if (item == null || !item.hasItemMeta()) return;
+        if (item == null) return;
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null) return;
+        
         List<String> stats = getEnabledStats(item);
         if (!stats.contains(statId)) {
             stats.add(statId);
-            ItemMeta meta = item.getItemMeta();
             meta.getPersistentDataContainer().set(enabledStatsKey, PersistentDataType.STRING, String.join(",", stats));
             
             // Initialize stat value
