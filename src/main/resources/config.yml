@@ -1,0 +1,315 @@
+settings:
+  lore-update: true
+  anti-spawner-farm-kills: true
+
+rarities:
+  COMMON:
+    stat-slots: 1
+    ability-slots: 1
+  RARE:
+    stat-slots: 2
+    ability-slots: 2
+    effect-slots: 1
+  LEGENDARY:
+    stat-slots: 4
+    ability-slots: 3
+    effect-slots: 2
+    modifier-slots: 1
+
+stat-cores:
+  SOUL_OF_THE_WARLORD:
+    material: NETHER_STAR
+    name: "&#8a0303&lSoul of the Warlord"
+    lore:
+      - "&7A throbbing, crimson jewel torn"
+      - "&7from the chest of a tyrant."
+      - "&7"
+      - "&7When bound to a weapon, it"
+      - "&7hungers for the blood of other"
+      - "&7players, unleashing dormant"
+      - "&7power with every fallen foe."
+      - "&8▬▬▬▬▬▬▬▬▬▬▬"
+      - "&cTracks: Player Kills"
+    stat-type: PLAYER_KILLS
+    
+  ESSENCE_OF_THE_HUNTER:
+    material: GHAST_TEAR
+    name: "&#ff8c00&lEssence of the Blood-Hunter"
+    lore:
+      - "&7A violently shaking tear."
+      - "&7It whispers of dark forests,"
+      - "&7endless nights, and slaughter."
+      - "&7"
+      - "&7Empowers a weapon to track"
+      - "&7the monsters you purge from"
+      - "&7this world."
+      - "&8▬▬▬▬▬▬▬▬▬▬▬"
+      - "&6Tracks: Mob Kills"
+    stat-type: MOB_KILLS
+    
+  HEART_OF_THE_MOUNTAIN:
+    material: DIAMOND
+    name: "&#00f0ff&lHeart of the Ancient Mountain"
+    lore:
+      - "&7A perfectly symmetrical geode,"
+      - "&7cold to the touch yet humming"
+      - "&7with the weight of the earth."
+      - "&7"
+      - "&7Binds to a pickaxe, revealing"
+      - "&7the secrets of the deep miners."
+      - "&8▬▬▬▬▬▬▬▬▬▬▬"
+      - "&bTracks: Diamonds Mined"
+    stat-type: DIAMONDS_MINED
+    
+  SHIELD_OF_THE_AEGIS:
+    material: IRON_BLOCK
+    name: "&#a19f9f&lFragment of the Aegis"
+    lore:
+      - "&7A shattered piece of the"
+      - "&7unbreakable wall that once"
+      - "&7guarded the Heavens."
+      - "&7"
+      - "&7When fused to a shield, it"
+      - "&7learns from every blow defelcted,"
+      - "&7becoming an immovable object."
+      - "&8▬▬▬▬▬▬▬▬▬▬▬"
+      - "&7Tracks: Damage Blocked"
+    stat-type: DAMAGE_BLOCKED
+    
+  ESSENCE_OF_RESILIENCE:
+    material: OBSIDIAN
+    name: "&#7a00ff&lEssence of Void Resilience"
+    lore:
+      - "&7A chunk of pure void-stone."
+      - "&7It absorbs impact, feeding"
+      - "&7off the pain you endure."
+      - "&7"
+      - "&7Weaves into armor to track"
+      - "&7the damage you sustain,"
+      - "&7hardening you over time."
+      - "&8▬▬▬▬▬▬▬▬▬▬▬"
+      - "&eTracks: Damage Taken"
+    stat-type: DAMAGE_TAKEN
+
+allowed-stats:
+  SWORD:
+    - PLAYER_KILLS
+    - MOB_KILLS
+  PICKAXE:
+    - DIAMONDS_MINED
+    - BLOCKS_MINED
+  MACE:
+    - PLAYER_KILLS
+  SPEAR:
+    - PLAYER_KILLS
+  SHIELD:
+    - DAMAGE_BLOCKED
+  CHESTPLATE:
+    - DAMAGE_TAKEN
+  LEGGINGS:
+    - DAMAGE_TAKEN
+  BOOTS:
+    - DAMAGE_TAKEN
+  HELMET:
+    - DAMAGE_TAKEN
+
+stats:
+  PLAYER_KILLS:
+    event: PLAYER_KILL
+    display: "&#ff3b3b⚔ Player Kills"
+    max-level: 5
+    leveling:
+      formula: "10 * (level ^ 2)" 
+    levels:
+      1:
+        storyline:
+          - "&8&o'It begins to hum with dark intent...'"
+          - "&8&oThe blade realizes its purpose."
+      2:
+        storyline:
+          - "&c&o'The metal is stained red now...'"
+          - "&c&oIt pulls you toward battle,"
+          - "&c&ogranting you unnatural speed."
+        ability-unlock: SWIFT_ASSASSIN
+      3:
+        storyline:
+          - "&4&o'A symphony of screaming souls...'"
+          - "&4&oYour enemies tremble as your"
+          - "&4&ostrikes call down the wrath"
+          - "&4&oof the skies."
+        ability-unlock: THUNDER_WRATH
+      4:
+        storyline:
+          - "&#ff0000&l&o'THE WARLORD AWAKENS'"
+          - "&c&oYou have become the physical"
+          - "&c&oembodiment of death on the server."
+          - "&c&oYour weapon permanently seethes"
+          - "&c&owith demonic strength."
+        ability-unlock: DEMONIC_STRENGTH
+      5:
+        storyline:
+          - "&#ff0000&k||| &4&lGOD OF WAR &#ff0000&k|||"
+          - "&c&oThere is no one left to challenge you."
+          - "&c&oThe blade has consumed everything."
+          - "&c&oYou are the eternal conqueror."
+        ability-unlock: BLOOD_EXPLOSION
+      
+  MOB_KILLS:
+    event: MOB_KILL
+    display: "&#ffae00☠ Monster Cleave"
+    max-level: 3
+    leveling:
+      formula: "50 * (level ^ 2)"
+    levels:
+      1:
+        storyline:
+          - "&8&oA basic instrument of monster slaying."
+      2:
+        storyline:
+          - "&6&oBathed in the remnants of the fallen."
+        ability-unlock: STRENGTH_AURA
+      3:
+        storyline:
+          - "&#ffae00&l&oTHE MONSTER HUNTER"
+          - "&e&oYour name is whispered in terror"
+          - "&e&oamongst the creatures of the night."
+        ability-unlock: DIVINE_SMITE
+
+  DIAMONDS_MINED:
+    event: BLOCK_BREAK
+    block: DIAMOND_ORE
+    display: "&#00f0ff💎 Deep Earth Riches"
+    max-level: 3
+    leveling:
+      formula: "25 * (level ^ 2)"
+    levels:
+      1:
+        storyline:
+          - "&8&oDrawn to the shimmering depths."
+      2:
+        storyline:
+          - "&b&oThe mountain yields its treasures."
+          - "&b&oYour swings become effortless."
+        ability-unlock: DEEP_MINER
+      3:
+        storyline:
+          - "&#00f0ff&l&oMASTER OF THE ABYSS"
+          - "&3&oYou have conquered the deepest caves."
+          - "&3&oThe stone shatters before you."
+        ability-unlock: ABYSSAL_HASTE
+
+  DAMAGE_TAKEN:
+    event: ENTITY_DAMAGE
+    display: "&#a832a8🛡 Void Endurance"
+    max-level: 3
+    leveling:
+      formula: "200 * (level ^ 2)" 
+    levels:
+      1:
+        storyline:
+          - "&8&oThe armor absorbs the impact,"
+          - "&8&olearning the shape of pain."
+      2:
+        storyline:
+          - "&5&oAn unyielding bastion."
+          - "&5&oThe void weaves into the plates,"
+          - "&5&ogranting you unnatural resilience."
+        ability-unlock: RESISTANCE_AURA
+      3:
+        storyline:
+          - "&#a832a8&l&oTHE IMMOVABLE MOUNTAIN"
+          - "&5&oBlows that would shatter mortal men"
+          - "&5&obounce harmlessly off your shell."
+        ability-unlock: VOID_THICK_SKIN
+
+  DAMAGE_BLOCKED:
+    event: ENTITY_DAMAGE_BLOCKED
+    display: "&#a19f9f🛡 Aegis Deflection"
+    max-level: 3
+    leveling:
+      formula: "150 * (level ^ 2)"
+    levels:
+      1:
+        storyline:
+          - "&8&oThe shield learns to deflect."
+      2:
+        storyline:
+          - "&7&oNothing shall pass."
+          - "&7&oYour guard hardens like steel."
+        ability-unlock: RESISTANCE_AURA
+      3:
+        storyline:
+          - "&#a19f9f&l&oTHE HEAVENLY BULWARK"
+          - "&8&oYou are the unbreakable wall."
+        ability-unlock: GUARDIAN_ANGEL
+
+ability-cores:
+  SWIFT_ASSASSIN:
+    type: POTION
+    effect: SPEED
+    amplifier: 0
+    display: "&e✦ Swift Assassin I"
+    sound: ENTITY_ENDER_DRAGON_FLAP
+    volume: 1.0
+    pitch: 0.5
+  STRENGTH_AURA:
+    type: POTION
+    effect: INCREASE_DAMAGE
+    amplifier: 0
+    display: "&c✦ Monster's Bane I"
+    sound: ENTITY_ZOMBIE_VILLAGER_CURE
+  DEMONIC_STRENGTH:
+    type: POTION
+    effect: INCREASE_DAMAGE
+    amplifier: 1
+    display: "&4✦ Demonic Strength II"
+    sound: ENTITY_WITHER_SPAWN
+  DEEP_MINER:
+    type: POTION
+    effect: FAST_DIGGING
+    amplifier: 1
+    display: "&b✦ Deep Miner II"
+  ABYSSAL_HASTE:
+    type: POTION
+    effect: FAST_DIGGING
+    amplifier: 2
+    display: "&3✦ Abyssal Haste III"
+    sound: BLOCK_BEACON_ACTIVATE
+  RESISTANCE_AURA:
+    type: POTION
+    effect: DAMAGE_RESISTANCE
+    amplifier: 0
+    display: "&7✦ Resilience I"
+  VOID_THICK_SKIN:
+    type: POTION
+    effect: DAMAGE_RESISTANCE
+    amplifier: 1
+    display: "&5✦ Void Thick Skin II"
+    sound: ITEM_SHIELD_BLOCK
+  GUARDIAN_ANGEL:
+    type: POTION
+    effect: ABSORPTION
+    amplifier: 1
+    display: "&e✦ Guardian Angel II"
+    sound: ENTITY_PLAYER_LEVELUP
+  THUNDER_WRATH:
+    type: KILL_EFFECT
+    effect: LIGHTNING
+    visual-only: true
+    display: "&e⚡ Thunder's Wrath"
+    sound: ENTITY_LIGHTNING_BOLT_THUNDER
+    pitch: 0.5
+    volume: 1.0
+  DIVINE_SMITE:
+    type: KILL_EFFECT
+    effect: LIGHTNING
+    visual-only: true
+    display: "&e⚡ Divine Smite"
+    sound: ENTITY_LIGHTNING_BOLT_IMPACT
+  BLOOD_EXPLOSION:
+    type: KILL_EFFECT
+    effect: PARTICLE_EXPLOSION
+    particle: EXPLOSION_LARGE
+    count: 30
+    display: "&c💥 Blood Explosion"
+    sound: ENTITY_DRAGON_FIREBALL_EXPLODE

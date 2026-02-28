@@ -1,0 +1,19 @@
+name: EternalItemCore
+version: '${project.version}'
+main: com.eternalitemcore.EternalItemCore
+api-version: '1.20'
+prefix: EternalItemCore
+authors: [ You ]
+description: A modular stat + evolution + ability + effect system driven entirely by config.
+commands:
+  eternalitemcore:
+    description: Main plugin command
+    aliases: [eicore]
+    permission: eternalitemcore.admin
+permissions:
+  eternalitemcore.admin:
+    description: Admin permissions for EternalItemCore
+    default: op
+  eternalitemcore.player:
+    description: Player commands for EternalItemCore
+    default: true
