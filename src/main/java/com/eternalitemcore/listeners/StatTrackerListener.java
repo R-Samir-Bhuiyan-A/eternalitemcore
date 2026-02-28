@@ -28,34 +28,44 @@ public class StatTrackerListener implements Listener {
             
             if (weapon.getType().isAir()) return;
 
-            if (event.getEntity() instanceof Player) {
-                if (plugin.getItemDataManager().hasStatEnabled(weapon, "PLAYER_KILLS")) {
-                    plugin.getItemDataManager().incrementStat(killer, weapon, "PLAYER_KILLS", 1);
-                    triggerKillEffects(killer, weapon, "PLAYER_KILLS");
-                }
-            } else {
-                if (plugin.getConfig().getBoolean("settings.anti-spawner-farm-kills", true)) {
-                    if (event.getEntity().hasMetadata("from_spawner")) {
-                        return;
-                    }
-                }
+            java.util.List<String> activeStats = plugin.getItemDataManager().getEnabledStats(weapon);
+            if (activeStats.isEmpty()) return;
 
-                if (plugin.getItemDataManager().hasStatEnabled(weapon, "MOB_KILLS")) {
-                    plugin.getItemDataManager().incrementStat(killer, weapon, "MOB_KILLS", 1);
-                    triggerKillEffects(killer, weapon, "MOB_KILLS");
+            for (String statId : activeStats) {
+                ConfigurationSection statSec = plugin.getConfig().getConfigurationSection("stats." + statId);
+                if (statSec == null) continue;
+
+                String requiredEvent = statSec.getString("event", "");
+
+                if (event.getEntity() instanceof Player) {
+                    if (requiredEvent.equalsIgnoreCase("PLAYER_KILL")) {
+                        plugin.getItemDataManager().incrementStat(killer, weapon, statId, 1);
+                        triggerKillEffects(killer, weapon, statId, event.getEntity().getLocation());
+                    }
+                } else {
+                    if (plugin.getConfig().getBoolean("settings.anti-spawner-farm-kills", true)) {
+                        if (event.getEntity().hasMetadata("from_spawner")) {
+                            continue; // Skip spawner farm kills
+                        }
+                    }
+
+                    if (requiredEvent.equalsIgnoreCase("MOB_KILL")) {
+                        plugin.getItemDataManager().incrementStat(killer, weapon, statId, 1);
+                        triggerKillEffects(killer, weapon, statId, event.getEntity().getLocation());
+                    }
                 }
             }
         }
     }
 
-    private void triggerKillEffects(Player player, ItemStack weapon, String statId) {
+    private void triggerKillEffects(Player player, ItemStack weapon, String statId, org.bukkit.Location loc) {
         int level = plugin.getItemDataManager().getStatLevel(weapon, statId);
         ConfigurationSection levelSec = plugin.getConfig().getConfigurationSection("stats." + statId + ".levels." + level);
         if (levelSec != null && levelSec.contains("ability-unlock")) {
             String abilityCoreId = levelSec.getString("ability-unlock");
             ConfigurationSection abilityConfig = plugin.getConfig().getConfigurationSection("ability-cores." + abilityCoreId);
             if (abilityConfig != null && abilityConfig.getString("type", "").equalsIgnoreCase("KILL_EFFECT")) {
-                plugin.getAbilityManager().triggerAbility(player, abilityCoreId, player.getLocation());
+                plugin.getAbilityManager().triggerAbility(player, abilityCoreId, loc);
             }
         }
     }
@@ -67,13 +77,18 @@ public class StatTrackerListener implements Listener {
         
         if (tool.getType().isAir()) return;
 
-        if (plugin.getItemDataManager().hasStatEnabled(tool, "BLOCKS_MINED")) {
-            plugin.getItemDataManager().incrementStat(player, tool, "BLOCKS_MINED", 1);
-        }
+        java.util.List<String> activeStats = plugin.getItemDataManager().getEnabledStats(tool);
+        if (activeStats.isEmpty()) return;
 
-        if (event.getBlock().getType().name().contains("DIAMOND_ORE")) {
-            if (plugin.getItemDataManager().hasStatEnabled(tool, "DIAMONDS_MINED")) {
-                plugin.getItemDataManager().incrementStat(player, tool, "DIAMONDS_MINED", 1);
+        for (String statId : activeStats) {
+            String requiredEvent = plugin.getConfig().getString("stats." + statId + ".event", "");
+            
+            if (requiredEvent.equalsIgnoreCase("BLOCK_BREAK")) {
+                plugin.getItemDataManager().incrementStat(player, tool, statId, 1);
+            } else if (requiredEvent.equalsIgnoreCase("ORE_MINE") && event.getBlock().getType().name().contains("_ORE")) {
+                plugin.getItemDataManager().incrementStat(player, tool, statId, 1);
+            } else if (requiredEvent.equalsIgnoreCase("DIAMOND_MINE") && event.getBlock().getType().name().contains("DIAMOND_ORE")) {
+                plugin.getItemDataManager().incrementStat(player, tool, statId, 1);
             }
         }
     }
@@ -83,10 +98,14 @@ public class StatTrackerListener implements Listener {
         if (event.getEntity() instanceof Player player) {
             for (ItemStack armorPiece : player.getInventory().getArmorContents()) {
                 if (armorPiece != null && !armorPiece.getType().isAir()) {
-                    if (plugin.getItemDataManager().hasStatEnabled(armorPiece, "DAMAGE_TAKEN")) {
-                        int dr = (int) Math.ceil(event.getFinalDamage());
-                        if (dr > 0) {
-                            plugin.getItemDataManager().incrementStat(player, armorPiece, "DAMAGE_TAKEN", dr);
+                    java.util.List<String> activeStats = plugin.getItemDataManager().getEnabledStats(armorPiece);
+                    for (String statId : activeStats) {
+                        String requiredEvent = plugin.getConfig().getString("stats." + statId + ".event", "");
+                        if (requiredEvent.equalsIgnoreCase("DAMAGE_TAKEN")) {
+                            int dr = (int) Math.ceil(event.getFinalDamage());
+                            if (dr > 0) {
+                                plugin.getItemDataManager().incrementStat(player, armorPiece, statId, dr);
+                            }
                         }
                     }
                 }
@@ -100,10 +119,14 @@ public class StatTrackerListener implements Listener {
             if (player.isBlocking()) {
                 ItemStack shield = player.getInventory().getItemInOffHand();
                 if (shield.getType().name().equals("SHIELD")) {
-                    if (plugin.getItemDataManager().hasStatEnabled(shield, "DAMAGE_BLOCKED")) {
-                        int dr = (int) Math.ceil(event.getDamage());
-                        if (dr > 0) {
-                            plugin.getItemDataManager().incrementStat(player, shield, "DAMAGE_BLOCKED", dr);
+                    java.util.List<String> activeStats = plugin.getItemDataManager().getEnabledStats(shield);
+                    for (String statId : activeStats) {
+                        String requiredEvent = plugin.getConfig().getString("stats." + statId + ".event", "");
+                        if (requiredEvent.equalsIgnoreCase("DAMAGE_BLOCKED")) {
+                            int dr = (int) Math.ceil(event.getDamage());
+                            if (dr > 0) {
+                                plugin.getItemDataManager().incrementStat(player, shield, statId, dr);
+                            }
                         }
                     }
                 }

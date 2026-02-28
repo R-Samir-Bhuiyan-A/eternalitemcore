@@ -103,7 +103,8 @@ public class ItemDataManager {
                     String bcast = plugin.getConfig().getString("stats." + statId + ".levels." + (currentLevel + 1) + ".broadcast-message");
                     if (bcast != null && !bcast.isEmpty() && player != null) {
                         String msg = bcast.replace("%player%", player.getName());
-                        plugin.getServer().broadcastMessage(org.bukkit.ChatColor.translateAlternateColorCodes('&', msg));
+                        // Send local immersive message instead of global spam broadcast
+                        player.sendMessage(org.bukkit.ChatColor.translateAlternateColorCodes('&', msg));
                     }
                 } else if (player != null) {
                     player.sendMessage(org.bukkit.ChatColor.GREEN + "Your item leveled up silently to Level " + (currentLevel + 1) + "!");

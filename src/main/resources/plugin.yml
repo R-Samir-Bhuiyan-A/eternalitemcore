@@ -2,7 +2,6 @@ name: EternalItemCore
 version: '${project.version}'
 main: com.eternalitemcore.EternalItemCore
 api-version: '1.20'
-prefix: EternalItemCore
 authors: [ You ]
 description: A modular stat + evolution + ability + effect system driven entirely by config.
 commands:

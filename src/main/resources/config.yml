@@ -366,20 +366,20 @@ ability-cores:
 
   VAMPIRE_BITE:
     type: KILL_EFFECT
-    effect: PARTICLE_EXPLOSION
+    effect: BLOOD_SIPHON
     particle: REDSTONE
     count: 20
     display: "&4✦ Vampire's Bite (Heal on Kill)"
   BLOOD_EXPLOSION:
     type: KILL_EFFECT
-    effect: PARTICLE_EXPLOSION
-    particle: EXPLOSION_LARGE
+    effect: SHOCKWAVE
+    particle: FLAME
     count: 30
     display: "&c💥 Blood Explosion"
     sound: ENTITY_DRAGON_FIREBALL_EXPLODE
   HOLY_EXPLOSION:
     type: KILL_EFFECT
-    effect: PARTICLE_EXPLOSION
+    effect: SHOCKWAVE
     particle: SOUL_FIRE_FLAME
     count: 50
     display: "&b💥 Holy Detonation"

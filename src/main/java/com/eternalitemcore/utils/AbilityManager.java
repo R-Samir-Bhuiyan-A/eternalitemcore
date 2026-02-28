@@ -61,33 +61,54 @@ public class AbilityManager {
             if (effectName != null && effectName.equalsIgnoreCase("LIGHTNING")) {
                 boolean visualOnly = abilitySec.getBoolean("visual-only", true);
                 if (visualOnly) {
-                    for (Player p : loc.getWorld().getPlayers()) {
-                        if (p.getLocation().distance(loc) < 40) {
-                            if (p.equals(player) && hideForSelf) continue;
-                            // Sending lightning packet to individual players instead of global world strike would require NMS/ProtocolLib or complex packet handling.
-                            // For simplicity on Bukkit API, if a player hides effects, we might just have to skip Lightning entirely for them, but Bukkit doesn't allow "fake" lightning easily without NMS.
-                            // However, Paper recently added it or we can spawn a Lightning entity visually.
-                            // Since true fake lightning per-player requires packets, we will use spawnParticle instead as a fallback for the "invisible to self" requirement, or just ignore LIGHTNING hide for now. 
-                        }
-                    }
-                    loc.getWorld().strikeLightningEffect(loc); // Global for now unless using ProtocolLib
+                    loc.getWorld().strikeLightningEffect(loc);
                 } else {
                     loc.getWorld().strikeLightning(loc);
                 }
-            } else if (effectName != null && effectName.equalsIgnoreCase("PARTICLE_EXPLOSION")) {
+            } else if (effectName != null && effectName.equalsIgnoreCase("SHOCKWAVE")) {
                 try {
                     Particle p = Particle.valueOf(abilitySec.getString("particle", "EXPLOSION_LARGE"));
-                    int count = abilitySec.getInt("count", 20);
-                    // Spawn particle for each nearby player EXCEPT the source if hidden
-                    for (Player pTarget : loc.getWorld().getPlayers()) {
-                        if (pTarget.getLocation().distance(loc) < 40) {
-                            if (pTarget.equals(player) && hideForSelf) continue;
-                            pTarget.spawnParticle(p, loc, count, 0.5, 0.5, 0.5, 0.1);
+                    // Cinematic expanding ring
+                    new org.bukkit.scheduler.BukkitRunnable() {
+                        double radius = 0;
+                        public void run() {
+                            radius += 0.5;
+                            for (double angle = 0; angle < Math.PI * 2; angle += Math.PI / 8) {
+                                double x = (radius * Math.cos(angle));
+                                double z = (radius * Math.sin(angle));
+                                loc.getWorld().spawnParticle(p, loc.clone().add(x, 0.5, z), 1, 0, 0, 0, 0);
+                            }
+                            if (radius > 3.0) this.cancel();
                         }
-                    }
+                    }.runTaskTimerAsynchronously(plugin, 0L, 1L);
                 } catch (Exception e) {
                     plugin.getLogger().warning("Invalid particle configured for " + abilityCoreId);
                 }
+            } else if (effectName != null && effectName.equalsIgnoreCase("BLOOD_SIPHON")) {
+                // Cinematic particles drawing from corpse to player
+                new org.bukkit.scheduler.BukkitRunnable() {
+                    int ticks = 0;
+                    Location start = loc.clone().add(0, 1, 0);
+                    public void run() {
+                        ticks++;
+                        if (ticks > 10 || !player.isOnline()) {
+                            // Apply heal when particles arrive
+                            if (player.isOnline()) {
+                                double newHealth = Math.min(player.getHealth() + 4.0, player.getAttribute(org.bukkit.attribute.Attribute.GENERIC_MAX_HEALTH).getValue());
+                                player.setHealth(newHealth);
+                                player.playSound(player.getLocation(), Sound.ENTITY_WITCH_DRINK, 1.0f, 1.2f);
+                            }
+                            this.cancel();
+                            return;
+                        }
+                        
+                        Location target = player.getLocation().add(0, 1, 0);
+                        org.bukkit.util.Vector dir = target.toVector().subtract(start.toVector()).normalize().multiply(0.5);
+                        start.add(dir);
+                        
+                        start.getWorld().spawnParticle(Particle.REDSTONE, start, 5, 0.2, 0.2, 0.2, new Particle.DustOptions(org.bukkit.Color.RED, 1.5f));
+                    }
+                }.runTaskTimer(plugin, 0L, 1L);
             }
         }
     }
