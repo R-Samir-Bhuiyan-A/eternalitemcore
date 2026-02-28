@@ -91,13 +91,12 @@ public class ActiveAbilityListener implements Listener {
         boolean success = false;
         
         if (effectName.equalsIgnoreCase("LIGHTNING_STRIKE")) {
-            Block target = player.getTargetBlockExact(30);
-            if (target != null) {
-                target.getWorld().strikeLightning(target.getLocation());
-                success = true;
-            } else {
-                player.sendMessage(ChatColor.RED + "No target block in range!");
-            }
+            org.bukkit.util.RayTraceResult result = player.getWorld().rayTraceBlocks(player.getEyeLocation(), player.getEyeLocation().getDirection(), 30);
+            Location strikeLoc = (result != null && result.getHitBlock() != null) 
+                ? result.getHitBlock().getLocation() 
+                : player.getEyeLocation().add(player.getEyeLocation().getDirection().multiply(30));
+            strikeLoc.getWorld().strikeLightning(strikeLoc);
+            success = true;
         } else if (effectName.equalsIgnoreCase("DASH")) {
             player.setVelocity(player.getLocation().getDirection().multiply(1.5).setY(0.5));
             player.playSound(player.getLocation(), org.bukkit.Sound.ENTITY_ENDER_DRAGON_FLAP, 1.0f, 1.5f);

@@ -77,7 +77,7 @@ public class LoreManager {
     /**
      * Replaces standard & codes and &#RRGGBB hex codes.
      */
-    private String color(String message) {
+    public String color(String message) {
         if (message == null) return "";
         Matcher matcher = HEX_PATTERN.matcher(message);
         StringBuffer buffer = new StringBuffer();

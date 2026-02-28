@@ -323,46 +323,55 @@ ability-cores:
     effect: SPEED
     amplifier: 0
     display: "&e✦ Swift Assassin I"
+    description: "Grants continuous Speed I while holding this item."
   STRENGTH_AURA:
     type: PASSIVE
     effect: INCREASE_DAMAGE
     amplifier: 0
     display: "&c✦ Monster's Bane I"
+    description: "Grants continuous Strength I while holding this item."
   DEMONIC_STRENGTH:
     type: PASSIVE
     effect: INCREASE_DAMAGE
     amplifier: 1
     display: "&4✦ Demonic Strength II"
+    description: "Grants continuous Strength II while holding this item."
   DEEP_MINER:
     type: PASSIVE
     effect: FAST_DIGGING
     amplifier: 1
     display: "&b✦ Deep Miner II"
+    description: "Grants continuous Haste II while holding this item."
   ABYSSAL_HASTE:
     type: PASSIVE
     effect: FAST_DIGGING
     amplifier: 2
     display: "&3✦ Abyssal Haste III"
+    description: "Grants continuous Haste III while holding this item."
   RESISTANCE_AURA:
     type: PASSIVE
     effect: DAMAGE_RESISTANCE
     amplifier: 0
     display: "&7✦ Resilience I"
+    description: "Grants continuous Resistance I while equipped or held."
   VOID_THICK_SKIN:
     type: PASSIVE
     effect: DAMAGE_RESISTANCE
     amplifier: 1
     display: "&5✦ Void Thick Skin II"
+    description: "Grants continuous Resistance II while equipped or held."
   GUARDIAN_ANGEL:
     type: PASSIVE
     effect: ABSORPTION
     amplifier: 1
     display: "&e✦ Guardian Angel II"
+    description: "Grants continuous Absorption II while equipped or held."
   STORM_SPEED:
     type: PASSIVE
     effect: SPEED
     amplifier: 1
     display: "&b✦ Storm's Agility II"
+    description: "Grants continuous Speed II while holding this item."
 
   VAMPIRE_BITE:
     type: KILL_EFFECT
@@ -370,6 +379,7 @@ ability-cores:
     particle: REDSTONE
     count: 20
     display: "&4✦ Vampire's Bite (Heal on Kill)"
+    description: "Siphons the blood of your slain foes to heal you for a portion of their health."
   BLOOD_EXPLOSION:
     type: KILL_EFFECT
     effect: SHOCKWAVE
@@ -377,6 +387,7 @@ ability-cores:
     count: 30
     display: "&c💥 Blood Explosion"
     sound: ENTITY_DRAGON_FIREBALL_EXPLODE
+    description: "Enemies erupt into a fiery shockwave upon death."
   HOLY_EXPLOSION:
     type: KILL_EFFECT
     effect: SHOCKWAVE
@@ -384,31 +395,37 @@ ability-cores:
     count: 50
     display: "&b💥 Holy Detonation"
     sound: ENTITY_ZOMBIE_VILLAGER_CURE
+    description: "Enemies detonate in blinding blue soul fire upon death."
   THUNDER_WRATH_KILL:
     type: KILL_EFFECT
     effect: LIGHTNING
     visual-only: true
     display: "&e⚡ Thunder's Wrath"
     sound: ENTITY_LIGHTNING_BOLT_THUNDER
+    description: "A brilliant, harmless lightning bolt strikes down your slain foes."
   DIVINE_SMITE_KILL:
     type: KILL_EFFECT
     effect: LIGHTNING
     visual-only: false
     display: "&b⚡ Divine Smite"
     sound: ENTITY_LIGHTNING_BOLT_IMPACT
+    description: "A destructive lightning bolt violently smites your slain foes."
 
   DASH_STRIKE:
     type: ACTIVE
     effect: DASH
     cooldown: 8
     display: "&c[Right-Click] &7Blood Dash (8s Cooldown)"
+    description: "Right-Click to rapidly launch yourself forward in the direction you are facing."
   BLADE_DANCE:
     type: ACTIVE
     effect: BLADE_DANCE
     cooldown: 15
     display: "&c[Right-Click] &7Blade Dance (15s Cooldown)"
+    description: "Right-Click to unleash a flurry of sweeping strikes, damaging all nearby entities."
   MJOLNIR_STRIKE:
     type: ACTIVE
     effect: LIGHTNING_STRIKE
     cooldown: 12
     display: "&b[Right-Click] &7Mjolnir's Wrath (12s Cooldown)"
+    description: "Right-Click to cast lightning out of the sky onto the block or entity you are aiming at."

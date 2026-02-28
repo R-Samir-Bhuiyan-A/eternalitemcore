@@ -121,7 +121,7 @@ public class CoreApplyListener implements Listener {
         org.bukkit.inventory.meta.BookMeta meta = (org.bukkit.inventory.meta.BookMeta) book.getItemMeta();
         
         if (meta != null) {
-            meta.setTitle(ChatColor.translateAlternateColorCodes('&', "&6Tome of " + display));
+            meta.setTitle(plugin.getLoreManager().color("&6Tome of " + display));
             meta.setAuthor("Eternal Item Core");
             
             int maxLevel = statConfig.getInt("max-level", 5);
@@ -129,19 +129,23 @@ public class CoreApplyListener implements Listener {
                 org.bukkit.configuration.ConfigurationSection lvlConfig = statConfig.getConfigurationSection("levels." + i);
                 if (lvlConfig != null) {
                     StringBuilder page = new StringBuilder();
-                    page.append(ChatColor.translateAlternateColorCodes('&', "&0&lLevel " + i + "\n\n"));
+                    page.append(plugin.getLoreManager().color("&0&lLevel " + i + "\n\n"));
                     
                     List<String> story = lvlConfig.getStringList("storyline");
                     for (String line : story) {
-                        page.append(ChatColor.translateAlternateColorCodes('&', line)).append("\n");
+                        page.append(plugin.getLoreManager().color(line)).append("\n");
                     }
                     
                     if (lvlConfig.contains("ability-unlock")) {
                         String abilityId = lvlConfig.getString("ability-unlock");
                         String abilityName = plugin.getConfig().getString("ability-cores." + abilityId + ".display", abilityId);
+                        String abilityDesc = plugin.getConfig().getString("ability-cores." + abilityId + ".description", "");
                         page.append("\n\n");
-                        page.append(ChatColor.translateAlternateColorCodes('&', "&8&lUnlocks:\n"));
-                        page.append(ChatColor.translateAlternateColorCodes('&', abilityName));
+                        page.append(plugin.getLoreManager().color("&8&lUnlocks:\n"));
+                        page.append(plugin.getLoreManager().color(abilityName));
+                        if (!abilityDesc.isEmpty()) {
+                            page.append("\n").append(plugin.getLoreManager().color("&8&o" + abilityDesc));
+                        }
                     }
                     
                     if (i < maxLevel) {

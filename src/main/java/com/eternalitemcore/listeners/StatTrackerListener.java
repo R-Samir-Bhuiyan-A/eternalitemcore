@@ -59,13 +59,20 @@ public class StatTrackerListener implements Listener {
     }
 
     private void triggerKillEffects(Player player, ItemStack weapon, String statId, org.bukkit.Location loc) {
-        int level = plugin.getItemDataManager().getStatLevel(weapon, statId);
-        ConfigurationSection levelSec = plugin.getConfig().getConfigurationSection("stats." + statId + ".levels." + level);
-        if (levelSec != null && levelSec.contains("ability-unlock")) {
-            String abilityCoreId = levelSec.getString("ability-unlock");
-            ConfigurationSection abilityConfig = plugin.getConfig().getConfigurationSection("ability-cores." + abilityCoreId);
-            if (abilityConfig != null && abilityConfig.getString("type", "").equalsIgnoreCase("KILL_EFFECT")) {
-                plugin.getAbilityManager().triggerAbility(player, abilityCoreId, loc);
+        int currentLevel = plugin.getItemDataManager().getStatLevel(weapon, statId);
+        
+        // Loop backwards from current level to 1 to find the highest-tier kill effect
+        for (int i = currentLevel; i >= 1; i--) {
+            ConfigurationSection levelSec = plugin.getConfig().getConfigurationSection("stats." + statId + ".levels." + i);
+            if (levelSec != null && levelSec.contains("ability-unlock")) {
+                String abilityCoreId = levelSec.getString("ability-unlock");
+                ConfigurationSection abilityConfig = plugin.getConfig().getConfigurationSection("ability-cores." + abilityCoreId);
+                
+                if (abilityConfig != null && abilityConfig.getString("type", "").equalsIgnoreCase("KILL_EFFECT")) {
+                    plugin.getAbilityManager().triggerAbility(player, abilityCoreId, loc);
+                    // Break so we don't trigger lower-level kill effects
+                    break;
+                }
             }
         }
     }

@@ -45,7 +45,7 @@ public class EternalItemCore extends JavaPlugin {
         pluginManager.registerEvents(new StatTrackerListener(this), this);
         pluginManager.registerEvents(new com.eternalitemcore.listeners.ActiveAbilityListener(this), this);
 
-        getServer().getScheduler().runTaskTimerAsynchronously(this, new com.eternalitemcore.utils.AbilityTickManager(this), 20L, 20L);
+        getServer().getScheduler().runTaskTimer(this, new com.eternalitemcore.utils.AbilityTickManager(this), 20L, 20L);
 
         getLogger().info("EternalItemCore has been enabled!");
     }
