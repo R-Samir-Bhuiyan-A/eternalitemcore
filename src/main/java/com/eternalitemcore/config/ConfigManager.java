@@ -55,4 +55,14 @@ public class ConfigManager {
     public List<String> getAllowedStats(String itemType) {
         return allowedStats.getOrDefault(itemType, List.of());
     }
+
+    public List<String> getAllowedItemsForStat(String statId) {
+        List<String> items = new java.util.ArrayList<>();
+        for (Map.Entry<String, List<String>> entry : allowedStats.entrySet()) {
+            if (entry.getValue().contains(statId)) {
+                items.add(entry.getKey());
+            }
+        }
+        return items;
+    }
 }

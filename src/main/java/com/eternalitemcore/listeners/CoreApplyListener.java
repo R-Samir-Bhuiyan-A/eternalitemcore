@@ -73,6 +73,10 @@ public class CoreApplyListener implements Listener {
         
         plugin.getLoreManager().updateLore(offHand);
 
+        player.getInventory().setItemInMainHand(mainHand);
+        player.getInventory().setItemInOffHand(offHand);
+        player.updateInventory();
+
         // Cancel to prevent placing blocks if the core is a block
         event.setCancelled(true);
     }

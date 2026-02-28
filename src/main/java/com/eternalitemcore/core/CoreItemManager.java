@@ -34,6 +34,17 @@ public class CoreItemManager {
             if (name != null) meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', name));
 
             List<String> lore = coreSec.getStringList("lore");
+            
+            String statId = coreSec.getString("stat-type");
+            if (statId != null) {
+                List<String> allowedItems = plugin.getConfigManager().getAllowedItemsForStat(statId);
+                if (!allowedItems.isEmpty()) {
+                    lore.add("&8▬▬▬▬▬▬▬▬▬▬▬");
+                    lore.add("&7Can be applied to:");
+                    lore.add("&f" + String.join(", ", allowedItems));
+                }
+            }
+
             if (!lore.isEmpty()) {
                 meta.setLore(lore.stream()
                         .map(s -> ChatColor.translateAlternateColorCodes('&', s))

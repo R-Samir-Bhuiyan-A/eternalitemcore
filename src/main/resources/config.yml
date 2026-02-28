@@ -62,7 +62,7 @@ stat-cores:
     stat-type: DIAMONDS_MINED
     
   SHIELD_OF_THE_AEGIS:
-    material: IRON_BLOCK
+    material: PRISMARINE_SHARD
     name: "&#a19f9f&lFragment of the Aegis"
     lore:
       - "&7A shattered piece of the"
@@ -77,7 +77,7 @@ stat-cores:
     stat-type: DAMAGE_BLOCKED
     
   ESSENCE_OF_RESILIENCE:
-    material: OBSIDIAN
+    material: AMETHYST_SHARD
     name: "&#7a00ff&lEssence of Void Resilience"
     lore:
       - "&7A chunk of pure void-stone."
