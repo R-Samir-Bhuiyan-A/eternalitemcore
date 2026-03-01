@@ -164,6 +164,21 @@ stat-cores:
       - "&3Tracks: Damage Taken"
     stat-type: MADNESS_TAKEN
 
+  VOID_WALKER_BOOT:
+    material: ECHO_SHARD
+    name: "&#8b3adb&lVoid Walker's Core"
+    lore:
+      - "&7A shard of pure nothingness."
+      - "&7It hums with displaced reality,"
+      - "&7as if it exists outside of time."
+      - "&7"
+      - "&7Weaves into Boots, tracking the"
+      - "&7damage you endure in the shadows."
+      - "&8▬▬▬▬▬▬▬▬▬▬▬"
+      - "&5Tracks: Damage Taken"
+      - "&5Lv 3 Unlocks: Glitch Walk"
+    stat-type: VOID_STEPS
+
 allowed-stats:
   SWORD:
     - PLAYER_KILLS
@@ -184,6 +199,7 @@ allowed-stats:
     - DAMAGE_TAKEN
   BOOTS:
     - DAMAGE_TAKEN
+    - VOID_STEPS
   HELMET:
     - DAMAGE_TAKEN
     - MADNESS_TAKEN
@@ -359,6 +375,43 @@ stats:
           - "&5&oBlows that would shatter mortal men"
           - "&5&obounce harmlessly off your shell."
         ability-unlock: VOID_THICK_SKIN
+
+  VOID_STEPS:
+    event: ENTITY_DAMAGE
+    display: "&5&#8b3adb👣 Void Steps"
+    max-level: 5
+    conflicts-with: []
+    leveling:
+      formula: "150 * (level ^ 2)"
+    levels:
+      1:
+        storyline:
+          - "&8&oThe shard pulses faintly as"
+          - "&8&oyour boots begin to blur."
+      2:
+        storyline:
+          - "&5&oYour footsteps leave faint"
+          - "&5&otrails in the void."
+        ability-unlock: RESISTANCE_AURA
+        broadcast-message: "&5&l%player% &7's boots fade into shadow! (Level 2)"
+      3:
+        storyline:
+          - "&#8b3adb&l&oYOU PHASE INTO THE VOID"
+          - "&5&oReality bends around you."
+          - "&5&oPull the trigger. Phase out."
+        ability-unlock: GLITCH_WALK
+        broadcast-message: "&#8b3adb&l%player% &7has unlocked GLITCH WALK!"
+      4:
+        storyline:
+          - "&8&oThe boundaries between worlds"
+          - "&8&oblur even further..."
+        broadcast-message: "&5&l%player% &7's void steps deepen! (Level 4)"
+      5:
+        storyline:
+          - "&#8b3adb&l&oMASTER OF THE VOID"
+          - "&5&oYou are no longer bound by"
+          - "&5&othe rules of this dimension."
+        broadcast-message: "&#8b3adb&l%player% &7masters the void! (MAX LEVEL)"
 
   DAMAGE_BLOCKED:
     event: ENTITY_DAMAGE_BLOCKED
