@@ -43,21 +43,26 @@ public class LoreManager {
             String display = statSec.getString("display", "&7" + statId);
             newLore.add(color(display + "&r &8[&7" + value + "&8] &e(Lv " + level + ")"));
 
-            // Check for Storyline & Abilities for the CURRENT level
-            ConfigurationSection levelSec = statSec.getConfigurationSection("levels." + level);
-            if (levelSec != null) {
-                // Add Storyline
-                List<String> storyline = levelSec.getStringList("storyline");
-                if (!storyline.isEmpty()) {
-                    newLore.add(""); // Spacer
-                    for (String line : storyline) {
-                        newLore.add(color(line));
+            // Show abilities/kill-effects from ALL unlocked levels (not just current level)
+            java.util.Set<String> shownAbilities = new java.util.HashSet<>();
+            for (int i = 1; i <= level; i++) {
+                ConfigurationSection lvlSec = statSec.getConfigurationSection("levels." + i);
+                if (lvlSec == null) continue;
+
+                // Show storyline only for the current level
+                if (i == level) {
+                    List<String> storyline = lvlSec.getStringList("storyline");
+                    if (!storyline.isEmpty()) {
+                        newLore.add(""); // Spacer
+                        for (String line : storyline) {
+                            newLore.add(color(line));
+                        }
                     }
                 }
 
-                // Add Ability Display
-                String abilityCoreId = levelSec.getString("ability-unlock");
-                if (abilityCoreId != null) {
+                // Show every ability/kill-effect unlocked from any level up to current
+                String abilityCoreId = lvlSec.getString("ability-unlock");
+                if (abilityCoreId != null && shownAbilities.add(abilityCoreId)) {
                     ConfigurationSection abilitySec = plugin.getConfig().getConfigurationSection("ability-cores." + abilityCoreId);
                     if (abilitySec != null) {
                         String abilityDisplay = abilitySec.getString("display", "&eUnlocked: " + abilityCoreId);

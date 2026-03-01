@@ -9,6 +9,9 @@ global-cooldowns:
   defense: 0.0
   misc: 0.0
 
+# How long (ms) a player has to complete a combo sequence before it resets
+combo-window-ms: 1000
+
 rarities:
   COMMON:
     stat-slots: 1
@@ -179,18 +182,63 @@ stat-cores:
       - "&5Lv 3 Unlocks: Glitch Walk"
     stat-type: VOID_STEPS
 
+  WARLORD_BLADE:
+    material: BLAZE_POWDER
+    name: "&c&lSoul-Forged Blade Core"
+    lore:
+      - "&7A searing powder that channels"
+      - "&7the aggression of fallen warriors."
+      - "&7"
+      - "&7Weaves into a Sword, tracking"
+      - "&7your combat mastery."
+      - "&8▬▬▬▬▬▬▬▬▬▬▬"
+      - "&cTracks: Player Kills"
+      - "&cLv 2 Unlocks: Blade Dance"
+    stat-type: BLADE_KILLS
+
+  THUNDER_MACE:
+    material: LIGHTNING_ROD
+    name: "&b&lThunderforged Core"
+    lore:
+      - "&7A miniature lightning rod crackling"
+      - "&7with barely-contained storm energy."
+      - "&7"
+      - "&7Weaves into a Mace, calling"
+      - "&7down Mjolnir's wrath."
+      - "&8▬▬▬▬▬▬▬▬▬▬▬"
+      - "&bTracks: Player Kills"
+      - "&bLv 2 Unlocks: Mjolnir Strike"
+    stat-type: THUNDER_KILLS
+
+  BATTLE_SPEAR:
+    material: FLINT
+    name: "&6&lSpear Fighter's Core"
+    lore:
+      - "&7A razor-edged flint tempered"
+      - "&7in the heat of a hundred battles."
+      - "&7"
+      - "&7Weaves into a Spear, tracking"
+      - "&7your mastery of the thrust."
+      - "&8▬▬▬▬▬▬▬▬▬▬▬"
+      - "&6Tracks: Player Kills"
+      - "&6Lv 2 Unlocks: Earthquake Cleave"
+    stat-type: SPEAR_KILLS
+
 allowed-stats:
   SWORD:
     - PLAYER_KILLS
     - MOB_KILLS
+    - BLADE_KILLS
   PICKAXE:
     - DIAMONDS_MINED
     - BLOCKS_MINED
   MACE:
     - PLAYER_KILLS
     - STORM_KILLS
+    - THUNDER_KILLS
   SPEAR:
     - PLAYER_KILLS
+    - SPEAR_KILLS
   SHIELD:
     - DAMAGE_BLOCKED
   CHESTPLATE:
@@ -507,6 +555,67 @@ stats:
         ability-unlock: SONIC_BOOM
 
 ability-cores:
+  # ── KILL EFFECTS ──────────────────────────────────────────────
+  # These appear in the Level Kill Effect GUI picker.
+  # They trigger automatically when the player kills with a weapon
+  # that has the stat leveled to the configured unlock level.
+  KE_LIGHTNING:
+    type: KILL_EFFECT
+    effect: LIGHTNING
+    visual-only: true
+    display: "&e⚡ Lightning Strike"
+    description: "A bolt of visual lightning strikes the victim."
+
+  KE_SHOCKWAVE:
+    type: KILL_EFFECT
+    effect: SHOCKWAVE
+    particle: EXPLOSION_LARGE
+    display: "&f💥 Shockwave"
+    description: "An expanding particle ring erupts from the kill location."
+
+  KE_BLOOD_SIPHON:
+    type: KILL_EFFECT
+    effect: BLOOD_SIPHON
+    display: "&4🩸 Blood Siphon"
+    description: "Red particles flow from the corpse to you, healing 2 hearts."
+
+  KE_SOUL_FIRE_PILLAR:
+    type: KILL_EFFECT
+    effect: SOUL_FIRE_PILLAR
+    display: "&9🔥 Soul Fire Pillar"
+    description: "A rising column of soul fire erupts from the victim."
+
+  KE_SHADOW_ERUPTION:
+    type: KILL_EFFECT
+    effect: SHADOW_ERUPTION
+    display: "&8🌑 Shadow Eruption"
+    description: "A burst of dragon breath and ink erupts with an ender dragon roar."
+
+  KE_VOID_IMPLOSION:
+    type: KILL_EFFECT
+    effect: VOID_IMPLOSION
+    display: "&5🌀 Void Implosion"
+    description: "A contracting sphere of end rods collapses into a sonic boom."
+
+  KE_FROST_NOVA:
+    type: KILL_EFFECT
+    effect: FROST_NOVA
+    display: "&b❄ Frost Nova"
+    description: "An icy burst of snowball particles and fireworks explodes outward."
+
+  KE_BLOOD_GEYSER:
+    type: KILL_EFFECT
+    effect: BLOOD_GEYSER
+    display: "&c🩸 Blood Geyser"
+    description: "A rising geyser of blood-red particles shoots upward."
+
+  KE_VOID_SWALLOW:
+    type: KILL_EFFECT
+    effect: VOID_SWALLOW
+    display: "&5🌑 Void Swallow"
+    description: "Wither-scream and squid ink swallow the kill location."
+
+  # ── PASSIVE ABILITIES ─────────────────────────────────────────
   SWIFT_ASSASSIN:
     type: PASSIVE
     effect: SPEED
@@ -756,3 +865,90 @@ ability-cores:
         amplifier: 3
     display: "&9[Sneak] &7Warden's Call (20s Cooldown)"
     description: "Sneak (Shift) to unleash a devastating Sonic Boom in the direction you are looking. Grants Slowness for 3s."
+
+  # ----------------------------------------------------------------
+  # Stats for new stat-cores: WARLORD_BLADE / THUNDER_MACE / BATTLE_SPEAR
+  # ----------------------------------------------------------------
+  BLADE_KILLS:
+    event: PLAYER_KILL
+    display: "&c⚔ Soul Blade Kills"
+    max-level: 5
+    leveling:
+      formula: "15 * (level ^ 2)"
+    levels:
+      1:
+        storyline:
+          - "&8&o'The blade craves blood...'"
+      2:
+        storyline:
+          - "&c&o'It dances on its own now.'"
+        ability-unlock: BLADE_DANCE
+        broadcast-message: "&c&l%player%'s &7soul blade erupted to Level 2 — Blade Dance unlocked!"
+      3:
+        storyline:
+          - "&4&o'Every swing leaves a scar...'"
+        broadcast-message: "&4&l%player%'s &7soul blade reached Level 3!"
+      4:
+        storyline:
+          - "&4&o'The rhythm of battle is yours.'"
+        broadcast-message: "&4&l%player%'s &7soul blade reached Level 4!"
+      5:
+        storyline:
+          - "&c&l'PERFECT MASTER OF THE BLADE'"
+        broadcast-message: "&c&l%player% &7has mastered the Soul Blade!"
+
+  THUNDER_KILLS:
+    event: PLAYER_KILL
+    display: "&b⚡ Thunderstrike Kills"
+    max-level: 5
+    leveling:
+      formula: "15 * (level ^ 2)"
+    levels:
+      1:
+        storyline:
+          - "&7&o'The rod begins to crackle...'"
+      2:
+        storyline:
+          - "&b&o'Thunder answers your call.'"
+        ability-unlock: MJOLNIR_STRIKE
+        broadcast-message: "&b&l%player%'s &7Mace reached Level 2 — Mjolnir Strike unlocked!"
+      3:
+        storyline:
+          - "&9&o'The storm obeys you.'"
+        broadcast-message: "&9&l%player%'s &7Mace reached Level 3!"
+      4:
+        storyline:
+          - "&b&o'Even the sky trembles.'"
+        broadcast-message: "&b&l%player%'s &7Mace reached Level 4!"
+      5:
+        storyline:
+          - "&b&l'YOU ARE THE STORM'"
+        broadcast-message: "&b&l%player% &7has mastered the Thunderforged Mace!"
+
+  SPEAR_KILLS:
+    event: PLAYER_KILL
+    display: "&6🗡 Spear Kills"
+    max-level: 5
+    leveling:
+      formula: "15 * (level ^ 2)"
+    levels:
+      1:
+        storyline:
+          - "&7&o'The spear finds its rhythm...'"
+      2:
+        storyline:
+          - "&6&o'The earth shakes at your thrust.'"
+        ability-unlock: EARTHQUAKE_CLEAVE
+        broadcast-message: "&6&l%player%'s &7Spear reached Level 2 — Earthquake Cleave unlocked!"
+      3:
+        storyline:
+          - "&6&o'Warriors scatter before you.'"
+        broadcast-message: "&6&l%player%'s &7Spear reached Level 3!"
+      4:
+        storyline:
+          - "&6&o'The land itself fears you.'"
+        broadcast-message: "&6&l%player%'s &7Spear reached Level 4!"
+      5:
+        storyline:
+          - "&6&l'CONQUERER OF BATTLEFIELDS'"
+        broadcast-message: "&6&l%player% &7has mastered the Spear!"

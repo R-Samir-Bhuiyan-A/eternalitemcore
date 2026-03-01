@@ -201,23 +201,86 @@ public class AdminGUIManager {
     }
     
     public void openAbilityEditMenu(Player player, String abilityId) {
-        Inventory gui = Bukkit.createInventory(null, 27, ChatColor.DARK_PURPLE + "Editing: " + abilityId);
-        
+        Inventory gui = Bukkit.createInventory(null, 54, ChatColor.DARK_PURPLE + "Editing: " + abilityId);
+
+        // --- Row 1: Core Stats ---
         gui.setItem(10, createGuiItem(Material.NAME_TAG, ChatColor.YELLOW + "Edit Display Name", ChatColor.GRAY + "Current: " + plugin.getConfig().getString("ability-cores." + abilityId + ".display")));
         gui.setItem(11, createGuiItem(Material.CLOCK, ChatColor.AQUA + "Edit Cooldown", ChatColor.GRAY + "Current: " + plugin.getConfig().getDouble("ability-cores." + abilityId + ".cooldown", 0.0) + "s"));
         gui.setItem(12, createGuiItem(Material.IRON_SWORD, ChatColor.RED + "Edit Damage", ChatColor.GRAY + "Current: " + plugin.getConfig().getDouble("ability-cores." + abilityId + ".damage", 0.0)));
         gui.setItem(13, createGuiItem(Material.ANVIL, ChatColor.GRAY + "Edit Durability Cost", ChatColor.GRAY + "Current: " + plugin.getConfig().getInt("ability-cores." + abilityId + ".durability-cost", 0) + " uses"));
-        gui.setItem(14, createGuiItem(Material.LEVER, ChatColor.LIGHT_PURPLE + "Edit Keybind Trigger", ChatColor.GRAY + "Current: " + plugin.getConfig().getString("ability-cores." + abilityId + ".trigger", "DEFAULT")));
-        gui.setItem(15, createGuiItem(Material.FERMENTED_SPIDER_EYE, ChatColor.DARK_GREEN + "Edit Self-Debuffs", ChatColor.GRAY + "Configure effects applied", ChatColor.GRAY + "to caster on use."));
-        gui.setItem(16, createGuiItem(Material.BARRIER, ChatColor.RED + "Delete Ability", ChatColor.DARK_RED + "Cannot be undone."));
-        
-        gui.setItem(22, createGuiItem(Material.ARROW, ChatColor.RED + "Back to Abilities"));
+
+        // --- Row 1: Keybind / Trigger ---
+        String currentTrigger = plugin.getConfig().getString("ability-cores." + abilityId + ".trigger", "DEFAULT");
+        gui.setItem(14, createGuiItem(Material.REPEATER, ChatColor.LIGHT_PURPLE + "Build Combo Trigger",
+                ChatColor.GRAY + "Current: " + currentTrigger,
+                ChatColor.YELLOW + "Click to open the visual",
+                ChatColor.YELLOW + "combo sequence builder!"));
+
+        // --- Row 2: Potion Effect editors ---
+        String currentEffect = plugin.getConfig().getString("ability-cores." + abilityId + ".potion-type", "NONE");
+        int currentAmp = plugin.getConfig().getInt("ability-cores." + abilityId + ".potion-amplifier", 0);
+        int currentDur = plugin.getConfig().getInt("ability-cores." + abilityId + ".potion-duration", 100);
+
+        gui.setItem(19, createGuiItem(Material.POTION, ChatColor.GREEN + "Edit Potion Effect Type",
+                ChatColor.GRAY + "Current: " + currentEffect,
+                ChatColor.GRAY + "e.g. SPEED, STRENGTH, SLOWNESS"));
+        gui.setItem(20, createGuiItem(Material.EXPERIENCE_BOTTLE, ChatColor.GREEN + "Edit Effect Amplifier",
+                ChatColor.GRAY + "Current Level: " + (currentAmp + 1),
+                ChatColor.GRAY + "(0 = Level 1, 4 = Level 5)"));
+        gui.setItem(21, createGuiItem(Material.COMPARATOR, ChatColor.GREEN + "Edit Effect Duration",
+                ChatColor.GRAY + "Current: " + (currentDur / 20) + "s",
+                ChatColor.GRAY + "Enter value in seconds"));
+
+        // --- Row 2: Misc ---
+        gui.setItem(23, createGuiItem(Material.FERMENTED_SPIDER_EYE, ChatColor.DARK_GREEN + "Edit Self-Debuffs",
+                ChatColor.GRAY + "Configure effects applied",
+                ChatColor.GRAY + "to caster on use."));
+        gui.setItem(24, createGuiItem(Material.BARRIER, ChatColor.RED + "Delete Ability", ChatColor.DARK_RED + "Cannot be undone."));
+
+        // --- Back ---
+        gui.setItem(49, createGuiItem(Material.ARROW, ChatColor.RED + "Back to Abilities"));
+
+        ItemStack filler = createGuiItem(Material.GRAY_STAINED_GLASS_PANE, " ");
+        for (int i = 0; i < 54; i++) {
+            if (gui.getItem(i) == null) gui.setItem(i, filler);
+        }
+
+        player.openInventory(gui);
+    }
+
+    /**
+     * Visual Combo Builder GUI — a 27-slot chest with clickable action icons.
+     * Clicking an action appends it to the player's in-progress combo sequence.
+     * Save button writes it to the ability config. Clear resets the sequence.
+     */
+    public void openComboBuilderGUI(Player player, String abilityId, List<String> currentCombo) {
+        String currentStr = currentCombo.isEmpty() ? "(empty)" : String.join(",", currentCombo);
+        Inventory gui = Bukkit.createInventory(null, 27,
+                ChatColor.DARK_PURPLE + "Combo Builder: " + abilityId);
+
+        // --- Action buttons (Row 1) ---
+        gui.setItem(0,  createGuiItem(Material.IRON_BOOTS,  ChatColor.AQUA   + "+ SNEAK",    ChatColor.GRAY + "Shift key"));
+        gui.setItem(1,  createGuiItem(Material.FEATHER,     ChatColor.YELLOW + "+ JUMP",     ChatColor.GRAY + "Space key"));
+        gui.setItem(2,  createGuiItem(Material.STICK,       ChatColor.GREEN  + "+ RIGHT_CLICK",  ChatColor.GRAY + "Right mouse"));
+        gui.setItem(3,  createGuiItem(Material.IRON_AXE,    ChatColor.RED    + "+ LEFT_CLICK",   ChatColor.GRAY + "Left mouse"));
+        gui.setItem(4,  createGuiItem(Material.REPEATER,    ChatColor.LIGHT_PURPLE + "+ SWAP_HANDS",   ChatColor.GRAY + "F key"));
+        gui.setItem(5,  createGuiItem(Material.HOPPER,      ChatColor.GOLD   + "+ DROP_ITEM",    ChatColor.GRAY + "Q key"));
+
+        // --- Sequence preview (Row 2 center) ---
+        gui.setItem(13, createGuiItem(Material.PAPER, ChatColor.WHITE + "Current Combo",
+                ChatColor.YELLOW + currentStr,
+                "",
+                ChatColor.GRAY + "Click action icons above to build."));
+
+        // --- Control buttons ---
+        gui.setItem(18, createGuiItem(Material.RED_CONCRETE,   ChatColor.RED   + "Clear Combo",  ChatColor.GRAY + "Resets sequence"));
+        gui.setItem(26, createGuiItem(Material.GREEN_CONCRETE, ChatColor.GREEN + "Save & Apply", ChatColor.GRAY + "Writes: " + currentStr));
 
         ItemStack filler = createGuiItem(Material.GRAY_STAINED_GLASS_PANE, " ");
         for (int i = 0; i < 27; i++) {
             if (gui.getItem(i) == null) gui.setItem(i, filler);
         }
-        
+
         player.openInventory(gui);
     }
 

@@ -34,6 +34,8 @@ public class ActiveAbilityListener implements Listener {
     private final Map<UUID, Map<String, Long>> categoryGcds = new HashMap<>();
     // Players currently in Glitch State
     public static final Set<UUID> glitchState = new HashSet<>();
+    // Track ground state per player for reliable JUMP detection
+    private final Map<UUID, Boolean> wasOnGround = new HashMap<>();
 
     public ActiveAbilityListener(EternalItemCore plugin) {
         this.plugin = plugin;
@@ -48,14 +50,12 @@ public class ActiveAbilityListener implements Listener {
         return "NONE";
     }
 
-    private boolean processTrigger(Player player, ItemStack item, String triggerAction) {
+    /** Single-item trigger matching — only for FIRE_SINGLE results from the tracker. */
+    private boolean processSingleTrigger(Player player, ItemStack item, String triggerAction) {
         if (item == null || item.getType().isAir()) return false;
-        
         List<String> enabledStats = plugin.getItemDataManager().getEnabledStats(item);
         if (enabledStats.isEmpty()) return false;
-        
         boolean triggeredAny = false;
-        
         for (String statId : enabledStats) {
             int currentLevel = plugin.getItemDataManager().getStatLevel(item, statId);
             for (int i = 1; i <= currentLevel; i++) {
@@ -63,12 +63,12 @@ public class ActiveAbilityListener implements Listener {
                 if (levelSec != null && levelSec.contains("ability-unlock")) {
                     String abilityCoreId = levelSec.getString("ability-unlock");
                     ConfigurationSection abilitySec = plugin.getConfig().getConfigurationSection("ability-cores." + abilityCoreId);
-                    
                     if (abilitySec != null) {
                         String reqTrigger = getAbilityTrigger(abilitySec);
+                        // Skip multi-step combo triggers in single-key mode
+                        if (reqTrigger.contains(",")) continue;
                         if (reqTrigger.equals(triggerAction)) {
-                            // Valid trigger! Fire ability.
-                            String effectName = abilitySec.getString("effect");
+                            String effectName = abilitySec.getString("effect", abilitySec.getString("type"));
                             int cooldownSeconds = abilitySec.getInt("cooldown", 10);
                             if (effectName != null) {
                                 double damage = abilitySec.getDouble("damage", 25.0);
@@ -85,19 +85,73 @@ public class ActiveAbilityListener implements Listener {
         return triggeredAny;
     }
 
+    /**
+     * Central dispatch: routes an action through the ComboInputTracker.
+     * FIRE_COMBO  → find and invoke the matched combo ability directly
+     * SUPPRESS    → mid-combo, do nothing
+     * FIRE_SINGLE → fall through to per-item single-key matching
+     */
     private boolean processAllTriggers(Player player, String action) {
-        boolean triggered = false;
-        if (processTrigger(player, player.getInventory().getItemInMainHand(), action)) {
-            triggered = true;
+        com.eternalitemcore.utils.ComboInputTracker.ComboResult result =
+                plugin.getComboInputTracker().recordInput(player, action);
+
+        switch (result.type()) {
+            case FIRE_COMBO -> {
+                // Find and fire only the matched combo ability
+                return fireComboAbility(player, result.abilityId());
+            }
+            case SUPPRESS -> {
+                return false; // mid-combo, suppress all
+            }
+            case FIRE_SINGLE -> {
+                // Normal per-item trigger matching
+                boolean triggered = false;
+                if (processSingleTrigger(player, player.getInventory().getItemInMainHand(), action)) triggered = true;
+                for (ItemStack armor : player.getInventory().getArmorContents()) {
+                    if (armor != null && !armor.getType().isAir()) {
+                        if (processSingleTrigger(player, armor, action)) triggered = true;
+                    }
+                }
+                return triggered;
+            }
         }
-        for (ItemStack armor : player.getInventory().getArmorContents()) {
-            if (armor != null && !armor.getType().isAir()) {
-                if (processTrigger(player, armor, action)) {
-                    triggered = true;
+        return false;
+    }
+
+    /**
+     * Fires a specific ability ID directly — used when the combo tracker identifies an exact match.
+     * Scans all equipped items to find one that has the matched ability bound.
+     */
+    private boolean fireComboAbility(Player player, String abilityId) {
+        // Check hotbar + armor for this ability binding
+        org.bukkit.inventory.PlayerInventory inv = player.getInventory();
+        java.util.List<ItemStack> allItems = new java.util.ArrayList<>();
+        allItems.add(inv.getItemInMainHand());
+        java.util.Collections.addAll(allItems, inv.getArmorContents());
+
+        for (ItemStack item : allItems) {
+            if (item == null || item.getType().isAir()) continue;
+            List<String> enabledStats = plugin.getItemDataManager().getEnabledStats(item);
+            for (String statId : enabledStats) {
+                int currentLevel = plugin.getItemDataManager().getStatLevel(item, statId);
+                for (int i = 1; i <= currentLevel; i++) {
+                    ConfigurationSection levelSec = plugin.getConfig().getConfigurationSection("stats." + statId + ".levels." + i);
+                    if (levelSec == null || !levelSec.contains("ability-unlock")) continue;
+                    if (!abilityId.equals(levelSec.getString("ability-unlock"))) continue;
+                    // Found the item holding this ability
+                    ConfigurationSection abilitySec = plugin.getConfig().getConfigurationSection("ability-cores." + abilityId);
+                    if (abilitySec == null) continue;
+                    String effectName = abilitySec.getString("effect", abilitySec.getString("type"));
+                    int cooldown = abilitySec.getInt("cooldown", 10);
+                    double damage = abilitySec.getDouble("damage", 0);
+                    int duraCost = abilitySec.getInt("durability-cost", 0);
+                    if (effectName != null) {
+                        return invokeActiveAbility(player, item, abilityId, effectName, cooldown, damage, duraCost);
+                    }
                 }
             }
         }
-        return triggered;
+        return false;
     }
 
     @EventHandler
@@ -119,6 +173,18 @@ public class ActiveAbilityListener implements Listener {
     public void onSneak(PlayerToggleSneakEvent event) {
         if (!event.isSneaking()) return;
         processAllTriggers(event.getPlayer(), "SNEAK");
+    }
+
+    @EventHandler(priority = org.bukkit.event.EventPriority.MONITOR)
+    public void onJump(org.bukkit.event.player.PlayerMoveEvent event) {
+        Player p = event.getPlayer();
+        boolean onGround = p.isOnGround();
+        boolean prevOnGround = wasOnGround.getOrDefault(p.getUniqueId(), true);
+        wasOnGround.put(p.getUniqueId(), onGround);
+        // Fire JUMP exactly once: when transitioning from grounded to airborne with upward movement
+        if (prevOnGround && !onGround && event.getTo() != null && event.getTo().getY() > event.getFrom().getY()) {
+            processAllTriggers(p, "JUMP");
+        }
     }
 
     @EventHandler
@@ -283,6 +349,11 @@ public class ActiveAbilityListener implements Listener {
                     }
                 }
             }
+            success = true;
+        } else if (effectName.equalsIgnoreCase("GLITCH_WALK")) {
+            // Route to AbilityManager for the complex Glitch State logic
+            plugin.getAbilityManager().triggerAbility(player, abilityId, null);
+            // triggerAbility handles the state internally; mark as success so cooldown applies
             success = true;
         }
         

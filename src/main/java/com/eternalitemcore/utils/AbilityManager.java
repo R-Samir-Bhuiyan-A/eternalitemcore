@@ -60,49 +60,66 @@ public class AbilityManager {
         } else if (type.equalsIgnoreCase("GLITCH_WALK")) {
             UUID pid = player.getUniqueId();
             if (com.eternalitemcore.listeners.ActiveAbilityListener.glitchState.contains(pid)) return;
-            
-            int duration = abilitySec.getInt("duration", 5) * 20; // seconds to ticks
-            
-            // Apply buffs
-            player.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, duration + 10, 0, false, false));
-            player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, duration + 10, 4, false, false)); // Speed 5
-            player.setAllowFlight(true);
+
+            // Read duration: prefer potion-duration (ticks, set by GUI), fall back to duration (seconds)
+            int durationTicks = abilitySec.contains("potion-duration")
+                    ? abilitySec.getInt("potion-duration", 100)
+                    : abilitySec.getInt("duration", 5) * 20;
+
+            // Read speed amplifier: configurable via GUI's "Edit Effect Amplifier" button (default 6 = Speed VII)
+            int speedAmp = abilitySec.getInt("potion-amplifier", 6);
+
+            // Apply speed buff using configurable amplifier
+            player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, durationTicks + 10, speedAmp, false, false));
             com.eternalitemcore.listeners.ActiveAbilityListener.glitchState.add(pid);
             player.sendMessage(ChatColor.DARK_PURPLE + "" + ChatColor.BOLD + "[GLITCH] You phase into the void!");
-            
-            // Trail runnable
+
+            // Hide the player from ALL other online players (hides armor + items too)
+            for (Player other : plugin.getServer().getOnlinePlayers()) {
+                if (!other.getUniqueId().equals(pid)) {
+                    other.hidePlayer(plugin, player);
+                }
+            }
+
+            // Trail runnable — runs every 4 ticks, lasts duration + 20 extra ticks after end
+            int trailDuration = durationTicks + 20;
             new org.bukkit.scheduler.BukkitRunnable() {
                 int t = 0;
                 public void run() {
-                    if (!player.isOnline() || !com.eternalitemcore.listeners.ActiveAbilityListener.glitchState.contains(pid)) {
-                        this.cancel();
-                        return;
-                    }
-                    t++;
+                    if (!player.isOnline()) { this.cancel(); return; }
+                    t += 4;
                     Location trailLoc = player.getLocation().add(0, 0.5, 0);
-                    trailLoc.getWorld().spawnParticle(Particle.PORTAL, trailLoc, 20, 0.3, 0.5, 0.3, 0.1);
-                    trailLoc.getWorld().spawnParticle(Particle.CRIT_MAGIC, trailLoc, 10, 0.2, 0.4, 0.2, 0.05);
-                    if (t >= duration) this.cancel();
+                    // Dense glitch trail visible to everyone
+                    trailLoc.getWorld().spawnParticle(Particle.PORTAL,      trailLoc, 45, 0.4, 0.7, 0.4, 0.15);
+                    trailLoc.getWorld().spawnParticle(Particle.CRIT_MAGIC,  trailLoc, 25, 0.3, 0.5, 0.3, 0.08);
+                    trailLoc.getWorld().spawnParticle(Particle.REVERSE_PORTAL, trailLoc, 15, 0.5, 0.8, 0.5, 0.05);
+                    if (t >= trailDuration) this.cancel();
                 }
-            }.runTaskTimer(plugin, 0L, 1L);
-            
+            }.runTaskTimer(plugin, 0L, 4L);
+
             // Termination runnable
             new org.bukkit.scheduler.BukkitRunnable() {
                 public void run() {
                     if (!player.isOnline()) return;
                     com.eternalitemcore.listeners.ActiveAbilityListener.glitchState.remove(pid);
                     player.setAllowFlight(false);
-                    player.removePotionEffect(PotionEffectType.INVISIBILITY);
                     player.removePotionEffect(PotionEffectType.SPEED);
-                    
+
+                    // Restore visibility to all online players
+                    for (Player other : plugin.getServer().getOnlinePlayers()) {
+                        if (!other.getUniqueId().equals(pid)) {
+                            other.showPlayer(plugin, player);
+                        }
+                    }
+
                     // Termination debuffs
                     player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 20 * 4, 2));
                     player.addPotionEffect(new PotionEffect(PotionEffectType.WEAKNESS, 20 * 6, 1));
-                    
+
                     // Loud bang to alert everyone nearby
                     player.getLocation().getWorld().playSound(player.getLocation(), Sound.ENTITY_WARDEN_SONIC_BOOM, 2.0f, 0.8f);
-                    player.getLocation().getWorld().spawnParticle(Particle.SONIC_BOOM, player.getLocation().add(0,1,0), 1);
-                    player.getLocation().getWorld().spawnParticle(Particle.SQUID_INK, player.getLocation().add(0,1,0), 80, 1.5, 1.5, 1.5, 0.3);
+                    player.getLocation().getWorld().spawnParticle(Particle.SONIC_BOOM, player.getLocation().add(0, 1, 0), 1);
+                    player.getLocation().getWorld().spawnParticle(Particle.SQUID_INK, player.getLocation().add(0, 1, 0), 80, 1.5, 1.5, 1.5, 0.3);
 
                     // Broadcast to nearby players
                     for (Player near : player.getLocation().getWorld().getPlayers()) {
@@ -111,7 +128,8 @@ public class AbilityManager {
                         }
                     }
                 }
-            }.runTaskLater(plugin, duration);
+            }.runTaskLater(plugin, durationTicks);
+
         } else if (type.equalsIgnoreCase("KILL_EFFECT") && loc != null) {
             String effectName = abilitySec.getString("effect");
             boolean hideForSelf = plugin.getPlayerSettingsManager().hasEffectsHidden(player);

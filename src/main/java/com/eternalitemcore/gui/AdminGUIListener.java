@@ -18,6 +18,10 @@ public class AdminGUIListener implements Listener {
 
     private final EternalItemCore plugin;
     private final Map<UUID, String> chatPrompts = new HashMap<>();
+    /** Per-player in-progress combo sequence for the Combo Builder GUI */
+    private final Map<UUID, List<String>> comboSessions = new HashMap<>();
+    /** Stores which abilityId the player is currently editing in the Combo Builder */
+    private final Map<UUID, String> comboEditingAbility = new HashMap<>();
 
     public AdminGUIListener(EternalItemCore plugin) {
         this.plugin = plugin;
@@ -120,10 +124,27 @@ public class AdminGUIListener implements Listener {
                 chatPrompts.put(player.getUniqueId(), "EDIT_DURABILITY:ability-cores:" + id);
                 player.sendMessage(ChatColor.YELLOW + "Type the Durability Cost (e.g. 5) (or 0 to disable).");
                 player.sendMessage(ChatColor.GRAY + "[Type 'cancel' anytime to abort]");
-            } else if (action.equals("Edit Keybind Trigger")) {
+            } else if (action.equals("Build Combo Trigger")) {
+                // Open the visual Combo Builder GUI
+                List<String> existing = new java.util.ArrayList<>();
+                String t = plugin.getConfig().getString("ability-cores." + id + ".trigger", "");
+                if (!t.isEmpty()) existing.addAll(java.util.Arrays.asList(t.split(",")));
+                comboSessions.put(player.getUniqueId(), new java.util.ArrayList<>(existing));
+                plugin.getAdminGUIManager().openComboBuilderGUI(player, id, existing);
+            } else if (action.equals("Edit Potion Effect Type")) {
                 player.closeInventory();
-                chatPrompts.put(player.getUniqueId(), "EDIT_TRIGGER:ability-cores:" + id);
-                player.sendMessage(ChatColor.YELLOW + "Type the new Trigger (RIGHT_CLICK, LEFT_CLICK, SNEAK, SWAP_HANDS, DROP_ITEM, BOW_SHOOT).");
+                chatPrompts.put(player.getUniqueId(), "EDIT_POTION_TYPE:ability-cores:" + id);
+                player.sendMessage(ChatColor.YELLOW + "Type a PotionEffectType name (e.g. SPEED, STRENGTH, SLOWNESS, BLINDNESS).");
+                player.sendMessage(ChatColor.GRAY + "[Type 'cancel' anytime to abort]");
+            } else if (action.equals("Edit Effect Amplifier")) {
+                player.closeInventory();
+                chatPrompts.put(player.getUniqueId(), "EDIT_POTION_AMP:ability-cores:" + id);
+                player.sendMessage(ChatColor.YELLOW + "Type the amplifier (0 = Level 1, 1 = Level 2, 4 = Level 5).");
+                player.sendMessage(ChatColor.GRAY + "[Type 'cancel' anytime to abort]");
+            } else if (action.equals("Edit Effect Duration")) {
+                player.closeInventory();
+                chatPrompts.put(player.getUniqueId(), "EDIT_POTION_DUR:ability-cores:" + id);
+                player.sendMessage(ChatColor.YELLOW + "Type duration in SECONDS (e.g. 5 = 5 seconds).");
                 player.sendMessage(ChatColor.GRAY + "[Type 'cancel' anytime to abort]");
             } else if (action.equals("Edit Self-Debuffs")) {
                 player.closeInventory();
@@ -160,6 +181,35 @@ public class AdminGUIListener implements Listener {
             } else if (action.contains("Kill Effect")) {
                 int levelNum = Integer.parseInt(action.replaceAll("[^0-9]", ""));
                 plugin.getAdminGUIManager().openAbilitySelectorMenu(player, coreId, levelNum);
+            }
+        }
+        else if (event.getView().getTitle().startsWith(ChatColor.DARK_PURPLE + "Combo Builder: ")) {
+            event.setCancelled(true);
+            if (event.getCurrentItem() == null || event.getCurrentItem().getItemMeta() == null) return;
+            Player player = (Player) event.getWhoClicked();
+            String title = ChatColor.stripColor(event.getView().getTitle());
+            String abilityId = title.replace("Combo Builder: ", "");
+
+            String itemName = ChatColor.stripColor(event.getCurrentItem().getItemMeta().getDisplayName());
+            comboSessions.putIfAbsent(player.getUniqueId(), new java.util.ArrayList<>());
+            List<String> session = comboSessions.get(player.getUniqueId());
+
+            if (itemName.startsWith("+ ")) {
+                // Action icon clicked — append the action to the sequence
+                String addedAction = itemName.substring(2);
+                session.add(addedAction);
+                plugin.getAdminGUIManager().openComboBuilderGUI(player, abilityId, session);
+            } else if (itemName.equals("Clear Combo")) {
+                session.clear();
+                plugin.getAdminGUIManager().openComboBuilderGUI(player, abilityId, session);
+            } else if (itemName.equals("Save & Apply")) {
+                String comboStr = String.join(",", session);
+                plugin.getConfig().set("ability-cores." + abilityId + ".trigger", comboStr);
+                plugin.saveConfig();
+                plugin.getConfigManager().loadConfig();
+                comboSessions.remove(player.getUniqueId());
+                player.sendMessage(ChatColor.GREEN + "Combo trigger saved: " + ChatColor.YELLOW + comboStr);
+                plugin.getAdminGUIManager().openAbilityEditMenu(player, abilityId);
             }
         }
         else if (event.getView().getTitle().startsWith(ChatColor.DARK_PURPLE + "Select Ability: ")) {
@@ -244,6 +294,15 @@ public class AdminGUIListener implements Listener {
                         try { plugin.getConfig().set(path + ".damage", Double.parseDouble(input)); } catch(Exception e){}
                     } else if (action.equals("EDIT_DURABILITY")) {
                         try { plugin.getConfig().set(path + ".durability-cost", Integer.parseInt(input)); } catch(Exception e){}
+                    } else if (action.equals("EDIT_POTION_TYPE")) {
+                        plugin.getConfig().set(path + ".potion-type", input.toUpperCase());
+                    } else if (action.equals("EDIT_POTION_AMP")) {
+                        try { plugin.getConfig().set(path + ".potion-amplifier", Integer.parseInt(input)); } catch(Exception e){}
+                    } else if (action.equals("EDIT_POTION_DUR")) {
+                        try {
+                            int ticks = (int)(Double.parseDouble(input) * 20); // seconds to ticks
+                            plugin.getConfig().set(path + ".potion-duration", ticks);
+                        } catch(Exception e){}
                     } else if (action.equals("EDIT_TRIGGER")) {
                         plugin.getConfig().set(path + ".trigger", input.toUpperCase());
                     } else if (action.equals("EDIT_DEBUFF")) {

@@ -7,6 +7,7 @@ import com.eternalitemcore.data.PlayerSettingsManager;
 import com.eternalitemcore.listeners.CoreApplyListener;
 import com.eternalitemcore.listeners.StatTrackerListener;
 import com.eternalitemcore.utils.AbilityManager;
+import com.eternalitemcore.utils.ComboInputTracker;
 import com.eternalitemcore.utils.LoreManager;
 import com.eternalitemcore.commands.EternalItemCoreCommand;
 import com.eternalitemcore.commands.EternalItemCoreTabCompleter;
@@ -21,6 +22,7 @@ public class EternalItemCore extends JavaPlugin {
     private PlayerSettingsManager playerSettingsManager;
     private LoreManager loreManager;
     private AbilityManager abilityManager;
+    private ComboInputTracker comboInputTracker;
     private com.eternalitemcore.gui.AdminGUIManager adminGUIManager;
 
 
@@ -35,6 +37,7 @@ public class EternalItemCore extends JavaPlugin {
         this.playerSettingsManager = new PlayerSettingsManager(this);
         this.loreManager = new LoreManager(this);
         this.abilityManager = new AbilityManager(this);
+        this.comboInputTracker = new ComboInputTracker(this);
         this.adminGUIManager = new com.eternalitemcore.gui.AdminGUIManager(this);
 
         getCommand("eternalitemcore").setExecutor(new EternalItemCoreCommand(this));
@@ -82,6 +85,10 @@ public class EternalItemCore extends JavaPlugin {
 
     public AbilityManager getAbilityManager() {
         return abilityManager;
+    }
+
+    public ComboInputTracker getComboInputTracker() {
+        return comboInputTracker;
     }
 
     public PlayerSettingsManager getPlayerSettingsManager() {
