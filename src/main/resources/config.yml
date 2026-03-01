@@ -566,6 +566,62 @@ ability-cores:
     sound: ITEM_CROSSBOW_SHOOT
     description: "A visually aesthetic volley of arrows rains down upon the corpse of your target."
 
+  FROST_NOVA:
+    type: KILL_EFFECT
+    effect: FROST_NOVA
+    display: "&b❄ Frost Nova"
+    description: "The victim explodes into a massive sphere of Snow and Ice particles."
+  BLOOD_GEYSER:
+    type: KILL_EFFECT
+    effect: BLOOD_GEYSER
+    display: "&c🩸 Blood Geyser"
+    description: "A violent eruption of blood sprays straight upwards into the air."
+  VOID_SWALLOW:
+    type: KILL_EFFECT
+    effect: VOID_SWALLOW
+    display: "&8🌌 Void Swallow"
+    description: "Black ink particles rapidly collapse inward onto the corpse like a black hole."
+  ANGELIC_ASCENSION:
+    type: KILL_EFFECT
+    effect: ANGELIC_ASCENSION
+    display: "&f👼 Angelic Ascension"
+    description: "White glowing soul particles rapidly rise from the corpse up into the sky."
+  DEMONIC_SLASH:
+    type: KILL_EFFECT
+    effect: DEMONIC_SLASH
+    display: "&4⚔ Demonic Slash"
+    description: "A horizontal ring of sweeping flames expand from the corpse."
+  TOXIC_SPORE:
+    type: KILL_EFFECT
+    effect: TOXIC_SPORE
+    display: "&a☣ Toxic Spore"
+    description: "Slime and emerald particles burst into a lingering cloud around the corpse."
+  COSMIC_DUST:
+    type: KILL_EFFECT
+    effect: COSMIC_DUST
+    display: "&d✨ Cosmic Dust"
+    description: "Purple and pink particles spiral in a beautiful galaxy pattern."
+  GOLDEN_SHOWER:
+    type: KILL_EFFECT
+    effect: GOLDEN_SHOWER
+    display: "&e💰 Golden Shower"
+    description: "A rapid explosion of gold nuggets and experience particles."
+  ASHEN_WIND:
+    type: KILL_EFFECT
+    effect: ASHEN_WIND
+    display: "&7🌪 Ashen Wind"
+    description: "Smoke and ash violently swirl upward like a tornado."
+  WITHER_CORRUPTION:
+    type: KILL_EFFECT
+    effect: WITHER_CORRUPTION
+    display: "&8💀 Wither Corruption"
+    description: "A wither skull shape briefly forms out of black particles."
+  SONIC_PULSE:
+    type: KILL_EFFECT
+    effect: SONIC_PULSE
+    display: "&3🔊 Sonic Pulse"
+    description: "A devastating sonic boom particle fires in all directions simultaneously."
+
   DASH_STRIKE:
     type: ACTIVE
     effect: DASH
@@ -623,5 +679,10 @@ ability-cores:
     effect: SONIC_BOOM
     cooldown: 20
     damage: 50.0
+    self-effects:
+      DEBUFF_1:
+        type: SLOWNESS
+        duration: 60
+        amplifier: 3
     display: "&9[Sneak] &7Warden's Call (20s Cooldown)"
-    description: "Sneak (Shift) to unleash a devastating Sonic Boom in the direction you are looking. Grants Blindness for 3s."
+    description: "Sneak (Shift) to unleash a devastating Sonic Boom in the direction you are looking. Grants Slowness for 3s."

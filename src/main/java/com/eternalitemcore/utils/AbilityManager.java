@@ -144,6 +144,80 @@ public class AbilityManager {
                         }
                     }
                 }.runTaskTimer(plugin, 0L, 1L);
+            } else if (effectName != null && effectName.equalsIgnoreCase("FROST_NOVA")) {
+                loc.getWorld().playSound(loc, Sound.BLOCK_GLASS_BREAK, 1.0f, 0.8f);
+                loc.getWorld().spawnParticle(Particle.SNOWBALL, loc.clone().add(0, 1, 0), 100, 1.0, 1.0, 1.0, 0.2);
+                loc.getWorld().spawnParticle(Particle.FIREWORKS_SPARK, loc.clone().add(0, 1, 0), 50, 1.5, 1.5, 1.5, 0.05);
+            } else if (effectName != null && effectName.equalsIgnoreCase("BLOOD_GEYSER")) {
+                loc.getWorld().playSound(loc, Sound.ENTITY_GENERIC_SPLASH, 1.0f, 0.5f);
+                new org.bukkit.scheduler.BukkitRunnable() {
+                    int ticks = 0;
+                    public void run() {
+                        ticks++;
+                        loc.getWorld().spawnParticle(Particle.REDSTONE, loc.clone().add(0, ticks * 0.5, 0), 20, 0.3, 0.1, 0.3, new Particle.DustOptions(org.bukkit.Color.RED, 2.0f));
+                        if (ticks > 10) this.cancel();
+                    }
+                }.runTaskTimer(plugin, 0L, 1L);
+            } else if (effectName != null && effectName.equalsIgnoreCase("VOID_SWALLOW")) {
+                loc.getWorld().playSound(loc, Sound.ENTITY_WITHER_SPAWN, 0.5f, 1.5f);
+                loc.getWorld().spawnParticle(Particle.SQUID_INK, loc.clone().add(0, 1, 0), 150, 2.0, 2.0, 2.0, -0.5); // Negative speed pulls inward
+            } else if (effectName != null && effectName.equalsIgnoreCase("ANGELIC_ASCENSION")) {
+                loc.getWorld().playSound(loc, Sound.BLOCK_BEACON_ACTIVATE, 1.0f, 1.5f);
+                new org.bukkit.scheduler.BukkitRunnable() {
+                    int ticks = 0;
+                    public void run() {
+                        ticks++;
+                        loc.getWorld().spawnParticle(Particle.END_ROD, loc.clone().add(0, ticks * 0.2, 0), 5, 0.5, 0, 0.5, 0.02);
+                        loc.getWorld().spawnParticle(Particle.SOUL, loc.clone().add(0, ticks * 0.2, 0), 3, 0.5, 0, 0.5, 0.05);
+                        if (ticks > 20) this.cancel();
+                    }
+                }.runTaskTimer(plugin, 0L, 1L);
+            } else if (effectName != null && effectName.equalsIgnoreCase("DEMONIC_SLASH")) {
+                loc.getWorld().playSound(loc, Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1.0f, 0.5f);
+                loc.getWorld().spawnParticle(Particle.SWEEP_ATTACK, loc.clone().add(0, 1, 0), 10, 2.0, 0.1, 2.0, 0);
+                loc.getWorld().spawnParticle(Particle.FLAME, loc.clone().add(0, 1, 0), 100, 2.0, 0.1, 2.0, 0.1);
+            } else if (effectName != null && effectName.equalsIgnoreCase("TOXIC_SPORE")) {
+                loc.getWorld().playSound(loc, Sound.ENTITY_SLIME_SQUISH, 1.0f, 0.5f);
+                loc.getWorld().spawnParticle(Particle.SLIME, loc.clone().add(0, 1, 0), 100, 1.5, 1.5, 1.5, 0);
+                loc.getWorld().spawnParticle(Particle.VILLAGER_HAPPY, loc.clone().add(0, 1, 0), 30, 2.0, 2.0, 2.0, 0);
+            } else if (effectName != null && effectName.equalsIgnoreCase("COSMIC_DUST")) {
+                loc.getWorld().playSound(loc, Sound.ENTITY_ENDER_EYE_DEATH, 1.0f, 1.0f);
+                new org.bukkit.scheduler.BukkitRunnable() {
+                    double angle = 0;
+                    public void run() {
+                        angle += Math.PI / 4;
+                        double x = Math.cos(angle) * 1.5;
+                        double z = Math.sin(angle) * 1.5;
+                        loc.getWorld().spawnParticle(Particle.END_ROD, loc.clone().add(x, angle * 0.1, z), 2, 0, 0, 0, 0);
+                        loc.getWorld().spawnParticle(Particle.DRAGON_BREATH, loc.clone().add(-x, angle * 0.1, -z), 5, 0, 0, 0, 0.02);
+                        if (angle > Math.PI * 4) this.cancel();
+                    }
+                }.runTaskTimer(plugin, 0L, 1L);
+            } else if (effectName != null && effectName.equalsIgnoreCase("GOLDEN_SHOWER")) {
+                loc.getWorld().playSound(loc, Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.5f);
+                loc.getWorld().spawnParticle(Particle.TOTEM, loc.clone().add(0, 1, 0), 150, 1.0, 1.0, 1.0, 0.5);
+                loc.getWorld().spawnParticle(Particle.SPELL_MOB, loc.clone().add(0, 1, 0), 50, 1.0, 1.0, 1.0, 1);
+            } else if (effectName != null && effectName.equalsIgnoreCase("ASHEN_WIND")) {
+                loc.getWorld().playSound(loc, Sound.ITEM_FIRECHARGE_USE, 1.0f, 0.5f);
+                new org.bukkit.scheduler.BukkitRunnable() {
+                    double angle = 0;
+                    public void run() {
+                        angle += Math.PI / 2;
+                        double x = Math.cos(angle) * 1.0;
+                        double z = Math.sin(angle) * 1.0;
+                        loc.getWorld().spawnParticle(Particle.CAMPFIRE_COSY_SMOKE, loc.clone().add(x, angle * 0.2, z), 10, 0.2, 0, 0.2, 0.05);
+                        loc.getWorld().spawnParticle(Particle.SMOKE_LARGE, loc.clone().add(-x, angle * 0.2, -z), 10, 0.2, 0, 0.2, 0.05);
+                        if (angle > Math.PI * 6) this.cancel();
+                    }
+                }.runTaskTimer(plugin, 0L, 1L);
+            } else if (effectName != null && effectName.equalsIgnoreCase("WITHER_CORRUPTION")) {
+                loc.getWorld().playSound(loc, Sound.ENTITY_WITHER_SHOOT, 1.0f, 0.5f);
+                loc.getWorld().spawnParticle(Particle.SMOKE_LARGE, loc.clone().add(0, 1, 0), 100, 1.0, 1.0, 1.0, 0.1);
+                loc.getWorld().spawnParticle(Particle.SQUID_INK, loc.clone().add(0, 1, 0), 50, 1.0, 1.0, 1.0, 0.1);
+            } else if (effectName != null && effectName.equalsIgnoreCase("SONIC_PULSE")) {
+                loc.getWorld().playSound(loc, Sound.ENTITY_WARDEN_SONIC_BOOM, 1.0f, 1.0f);
+                loc.getWorld().spawnParticle(Particle.SONIC_BOOM, loc.clone().add(0, 1, 0), 1);
+                loc.getWorld().spawnParticle(Particle.CRIT_MAGIC, loc.clone().add(0, 1, 0), 100, 1.5, 1.5, 1.5, 0.5);
             }
         }
     }

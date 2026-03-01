@@ -93,6 +93,8 @@ public class AdminGUIManager {
                 String disp = plugin.getConfig().getString("ability-cores." + abilityId + ".display", abilityId);
                 String type = plugin.getConfig().getString("ability-cores." + abilityId + ".type", "UNKNOWN");
                 
+                if (type.equalsIgnoreCase("KILL_EFFECT")) continue;
+                
                 gui.setItem(slot++, createGuiItem(Material.ENCHANTED_BOOK, ChatColor.translateAlternateColorCodes('&', disp), 
                     ChatColor.DARK_GRAY + "ID: " + abilityId,
                     ChatColor.GRAY + "Type: " + type,
@@ -118,7 +120,8 @@ public class AdminGUIManager {
         gui.setItem(11, createGuiItem(Material.DIAMOND, ChatColor.AQUA + "Edit Material", ChatColor.GRAY + "Current: " + plugin.getConfig().getString("stat-cores." + coreId + ".material")));
         gui.setItem(12, createGuiItem(Material.BOOK, ChatColor.GREEN + "Edit Lore Format", ChatColor.GRAY + "Click to rewrite the lore."));
         gui.setItem(14, createGuiItem(Material.COMPASS, ChatColor.LIGHT_PURPLE + "Edit Tracked Stat", ChatColor.GRAY + "Current: " + plugin.getConfig().getString("stat-cores." + coreId + ".stat-type")));
-        gui.setItem(16, createGuiItem(Material.BARRIER, ChatColor.RED + "Delete Core", ChatColor.DARK_RED + "Cannot be undone."));
+        gui.setItem(16, createGuiItem(Material.ENDER_PEARL, ChatColor.GOLD + "Edit Level Path", ChatColor.GRAY + "Configure level XP requirements", ChatColor.GRAY + "and Custom Death Messages."));
+        gui.setItem(17, createGuiItem(Material.BARRIER, ChatColor.RED + "Delete Core", ChatColor.DARK_RED + "Cannot be undone."));
         
         gui.setItem(22, createGuiItem(Material.ARROW, ChatColor.RED + "Back to Cores"));
 
@@ -129,6 +132,73 @@ public class AdminGUIManager {
         
         player.openInventory(gui);
     }
+
+    public void openCoreLevelMenu(Player player, String coreId) {
+        Inventory gui = Bukkit.createInventory(null, 54, ChatColor.GOLD + "Levels: " + coreId);
+        
+        // Let them edit up to Level 5 visually
+        for (int i = 1; i <= 5; i++) {
+            String path = "stats." + coreId + ".levels." + i;
+            String reqStr = "formula";
+            // Check if exact XP req is set instead of formula
+            if (plugin.getConfig().contains(path + ".required-xp")) {
+                reqStr = plugin.getConfig().getInt(path + ".required-xp") + " XP";
+            }
+            String dmStr = plugin.getConfig().getString(path + ".death-message", "None");
+            
+            gui.setItem(10 + (i-1), createGuiItem(Material.EXPERIENCE_BOTTLE, ChatColor.YELLOW + "Level " + i + " XP", 
+                ChatColor.GRAY + "Current: " + reqStr, 
+                ChatColor.YELLOW + "Click to edit required XP."));
+                
+            gui.setItem(19 + (i-1), createGuiItem(Material.SKELETON_SKULL, ChatColor.RED + "Level " + i + " Death Msg", 
+                ChatColor.GRAY + "Current: " + dmStr,
+                ChatColor.YELLOW + "Click to edit broadcast."));
+                
+            gui.setItem(28 + (i-1), createGuiItem(Material.BLAZE_POWDER, ChatColor.LIGHT_PURPLE + "Level " + i + " Kill Effect", 
+                ChatColor.GRAY + "Current Ability ID:",
+                ChatColor.GRAY + plugin.getConfig().getString(path + ".ability-unlock", "None"),
+                ChatColor.YELLOW + "Click to bind Kill Effect."));
+        }
+        
+        gui.setItem(49, createGuiItem(Material.ARROW, ChatColor.RED + "Back to Editing: " + coreId));
+        
+        ItemStack filler = createGuiItem(Material.GRAY_STAINED_GLASS_PANE, " ");
+        for (int i = 0; i < 54; i++) {
+            if (gui.getItem(i) == null) gui.setItem(i, filler);
+        }
+        player.openInventory(gui);
+    }
+    
+    public void openAbilitySelectorMenu(Player player, String coreId, int level) {
+        Inventory gui = Bukkit.createInventory(null, 54, ChatColor.DARK_PURPLE + "Select Ability: " + coreId + " Lvl " + level);
+        
+        int slot = 0;
+        if (plugin.getConfig().getConfigurationSection("ability-cores") != null) {
+            for (String abilityId : plugin.getConfig().getConfigurationSection("ability-cores").getKeys(false)) {
+                if (slot >= 45) break;
+                
+                String disp = plugin.getConfig().getString("ability-cores." + abilityId + ".display", abilityId);
+                String type = plugin.getConfig().getString("ability-cores." + abilityId + ".type", "UNKNOWN");
+                
+                if (!type.equalsIgnoreCase("KILL_EFFECT")) continue;
+                
+                gui.setItem(slot++, createGuiItem(Material.ENCHANTED_BOOK, ChatColor.translateAlternateColorCodes('&', disp), 
+                    ChatColor.DARK_GRAY + "ID: " + abilityId,
+                    ChatColor.GRAY + "Type: " + type,
+                    ChatColor.YELLOW + "Click to bind to Level " + level));
+            }
+        }
+        
+        gui.setItem(48, createGuiItem(Material.BARRIER, ChatColor.RED + "Clear Ability", ChatColor.GRAY + "Remove ability unlock from this level."));
+        gui.setItem(50, createGuiItem(Material.ARROW, ChatColor.RED + "Back to Levels"));
+
+        ItemStack filler = createGuiItem(Material.GRAY_STAINED_GLASS_PANE, " ");
+        for (int i = 0; i < 54; i++) {
+            if (gui.getItem(i) == null) gui.setItem(i, filler);
+        }
+
+        player.openInventory(gui);
+    }
     
     public void openAbilityEditMenu(Player player, String abilityId) {
         Inventory gui = Bukkit.createInventory(null, 27, ChatColor.DARK_PURPLE + "Editing: " + abilityId);
@@ -137,6 +207,7 @@ public class AdminGUIManager {
         gui.setItem(11, createGuiItem(Material.CLOCK, ChatColor.AQUA + "Edit Cooldown", ChatColor.GRAY + "Current: " + plugin.getConfig().getDouble("ability-cores." + abilityId + ".cooldown", 0.0) + "s"));
         gui.setItem(12, createGuiItem(Material.IRON_SWORD, ChatColor.RED + "Edit Damage", ChatColor.GRAY + "Current: " + plugin.getConfig().getDouble("ability-cores." + abilityId + ".damage", 0.0)));
         gui.setItem(14, createGuiItem(Material.LEVER, ChatColor.LIGHT_PURPLE + "Edit Keybind Trigger", ChatColor.GRAY + "Current: " + plugin.getConfig().getString("ability-cores." + abilityId + ".trigger", "DEFAULT")));
+        gui.setItem(15, createGuiItem(Material.FERMENTED_SPIDER_EYE, ChatColor.DARK_GREEN + "Edit Self-Debuffs", ChatColor.GRAY + "Configure effects applied", ChatColor.GRAY + "to caster on use."));
         gui.setItem(16, createGuiItem(Material.BARRIER, ChatColor.RED + "Delete Ability", ChatColor.DARK_RED + "Cannot be undone."));
         
         gui.setItem(22, createGuiItem(Material.ARROW, ChatColor.RED + "Back to Abilities"));

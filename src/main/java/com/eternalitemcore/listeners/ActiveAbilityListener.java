@@ -78,10 +78,24 @@ public class ActiveAbilityListener implements Listener {
         return triggeredAny;
     }
 
+    private boolean processAllTriggers(Player player, String action) {
+        boolean triggered = false;
+        if (processTrigger(player, player.getInventory().getItemInMainHand(), action)) {
+            triggered = true;
+        }
+        for (ItemStack armor : player.getInventory().getArmorContents()) {
+            if (armor != null && !armor.getType().isAir()) {
+                if (processTrigger(player, armor, action)) {
+                    triggered = true;
+                }
+            }
+        }
+        return triggered;
+    }
+
     @EventHandler
     public void onInteract(PlayerInteractEvent event) {
         Player player = event.getPlayer();
-        ItemStack item = player.getInventory().getItemInMainHand();
         String action = "";
         
         if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) action = "RIGHT_CLICK";
@@ -89,7 +103,7 @@ public class ActiveAbilityListener implements Listener {
         
         if (action.isEmpty()) return;
         
-        if (processTrigger(player, item, action)) {
+        if (processAllTriggers(player, action)) {
             event.setCancelled(true);
         }
     }
@@ -97,29 +111,19 @@ public class ActiveAbilityListener implements Listener {
     @EventHandler
     public void onSneak(PlayerToggleSneakEvent event) {
         if (!event.isSneaking()) return;
-        Player player = event.getPlayer();
-        // Sneak prioritizes Helmet first, then mainhand
-        ItemStack armor = player.getInventory().getHelmet();
-        if (processTrigger(player, armor, "SNEAK")) return;
-        
-        ItemStack hand = player.getInventory().getItemInMainHand();
-        processTrigger(player, hand, "SNEAK");
+        processAllTriggers(event.getPlayer(), "SNEAK");
     }
 
     @EventHandler
     public void onSwapHand(PlayerSwapHandItemsEvent event) {
-        Player player = event.getPlayer();
-        ItemStack item = player.getInventory().getItemInMainHand();
-        if (processTrigger(player, item, "SWAP_HANDS")) {
+        if (processAllTriggers(event.getPlayer(), "SWAP_HANDS")) {
             event.setCancelled(true);
         }
     }
 
     @EventHandler
     public void onDropItem(PlayerDropItemEvent event) {
-        Player player = event.getPlayer();
-        ItemStack item = event.getItemDrop().getItemStack();
-        if (processTrigger(player, item, "DROP_ITEM")) {
+        if (processAllTriggers(event.getPlayer(), "DROP_ITEM")) {
             event.setCancelled(true);
         }
     }
@@ -138,6 +142,31 @@ public class ActiveAbilityListener implements Listener {
             net.md_5.bungee.api.ChatMessageType type = net.md_5.bungee.api.ChatMessageType.ACTION_BAR;
             player.spigot().sendMessage(type, new net.md_5.bungee.api.chat.TextComponent(ChatColor.RED + "Ability on Cooldown: " + remaining + "s"));
             return false;
+        }
+        
+        ConfigurationSection abilitySec = plugin.getConfig().getConfigurationSection("ability-cores." + abilityId);
+        if (abilitySec != null) {
+            if (abilitySec.contains("self-effects")) {
+                for (String effectKey : abilitySec.getConfigurationSection("self-effects").getKeys(false)) {
+                    String typeStr = abilitySec.getString("self-effects." + effectKey + ".type");
+                    int dur = abilitySec.getInt("self-effects." + effectKey + ".duration", 100);
+                    int amp = abilitySec.getInt("self-effects." + effectKey + ".amplifier", 0);
+                    if (typeStr != null) {
+                        PotionEffectType pType = PotionEffectType.getByName(typeStr);
+                        if (pType != null) {
+                            player.addPotionEffect(new PotionEffect(pType, dur, amp));
+                        }
+                    }
+                }
+            }
+            if (abilitySec.contains("remove-effects")) {
+                for (String typeStr : abilitySec.getStringList("remove-effects")) {
+                    PotionEffectType pType = PotionEffectType.getByName(typeStr);
+                    if (pType != null && player.hasPotionEffect(pType)) {
+                        player.removePotionEffect(pType);
+                    }
+                }
+            }
         }
         
         boolean success = false;

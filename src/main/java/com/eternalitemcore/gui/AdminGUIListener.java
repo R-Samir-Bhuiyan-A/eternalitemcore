@@ -10,6 +10,7 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -97,23 +98,99 @@ public class AdminGUIListener implements Listener {
                 player.closeInventory();
                 boolean isCore = plugin.getConfig().contains("stat-cores." + id);
                 chatPrompts.put(player.getUniqueId(), "EDIT_NAME:" + (isCore ? "stat-cores" : "ability-cores") + ":" + id);
-                player.sendMessage(ChatColor.YELLOW + "Type the new Display Name in chat (You can use & color codes):");
+                player.sendMessage(ChatColor.YELLOW + "Type the new Display Name in chat (You can use & color codes).");
+                player.sendMessage(ChatColor.GRAY + "[Type 'cancel' anytime to abort]");
             } else if (action.equals("Edit Material")) {
                 player.closeInventory();
                 chatPrompts.put(player.getUniqueId(), "EDIT_MAT:stat-cores:" + id);
-                player.sendMessage(ChatColor.YELLOW + "Type the new Material enum in chat (e.g. DIAMOND_SWORD):");
+                player.sendMessage(ChatColor.YELLOW + "Type the new Material enum in chat (e.g. DIAMOND_SWORD).");
+                player.sendMessage(ChatColor.GRAY + "[Type 'cancel' anytime to abort]");
             } else if (action.equals("Edit Cooldown")) {
                 player.closeInventory();
                 chatPrompts.put(player.getUniqueId(), "EDIT_COOLDOWN:ability-cores:" + id);
-                player.sendMessage(ChatColor.YELLOW + "Type the new Cooldown in seconds (e.g. 5.5):");
+                player.sendMessage(ChatColor.YELLOW + "Type the new Cooldown in seconds (e.g. 5.5).");
+                player.sendMessage(ChatColor.GRAY + "[Type 'cancel' anytime to abort]");
             } else if (action.equals("Edit Damage")) {
                 player.closeInventory();
                 chatPrompts.put(player.getUniqueId(), "EDIT_DAMAGE:ability-cores:" + id);
-                player.sendMessage(ChatColor.YELLOW + "Type the new Damage value (e.g. 10.0):");
+                player.sendMessage(ChatColor.YELLOW + "Type the new Damage value (e.g. 10.0).");
+                player.sendMessage(ChatColor.GRAY + "[Type 'cancel' anytime to abort]");
             } else if (action.equals("Edit Keybind Trigger")) {
                 player.closeInventory();
                 chatPrompts.put(player.getUniqueId(), "EDIT_TRIGGER:ability-cores:" + id);
-                player.sendMessage(ChatColor.YELLOW + "Type the new Trigger (RIGHT_CLICK, LEFT_CLICK, SNEAK, SWAP_HANDS, DROP_ITEM, BOW_SHOOT):");
+                player.sendMessage(ChatColor.YELLOW + "Type the new Trigger (RIGHT_CLICK, LEFT_CLICK, SNEAK, SWAP_HANDS, DROP_ITEM, BOW_SHOOT).");
+                player.sendMessage(ChatColor.GRAY + "[Type 'cancel' anytime to abort]");
+            } else if (action.equals("Edit Self-Debuffs")) {
+                player.closeInventory();
+                chatPrompts.put(player.getUniqueId(), "EDIT_DEBUFF:ability-cores:" + id);
+                player.sendMessage(ChatColor.YELLOW + "Type Debuff and Duration (e.g. SLOWNESS:3), or type 'clear'.");
+                player.sendMessage(ChatColor.GRAY + "[Type 'cancel' anytime to abort]");
+            } else if (action.equals("Edit Level Path")) {
+                plugin.getAdminGUIManager().openCoreLevelMenu(player, id);
+            }
+        }
+        else if (event.getView().getTitle().startsWith(ChatColor.GOLD + "Levels: ")) {
+            event.setCancelled(true);
+            if (event.getCurrentItem() == null || event.getCurrentItem().getItemMeta() == null) return;
+            
+            Player player = (Player) event.getWhoClicked();
+            String title = ChatColor.stripColor(event.getView().getTitle());
+            String coreId = title.replace("Levels: ", "");
+            String action = ChatColor.stripColor(event.getCurrentItem().getItemMeta().getDisplayName());
+
+            if (action.startsWith("Back to Editing")) {
+                plugin.getAdminGUIManager().openCoreEditMenu(player, coreId);
+            } else if (action.contains("XP")) {
+                int levelNum = Integer.parseInt(action.replaceAll("[^0-9]", ""));
+                player.closeInventory();
+                chatPrompts.put(player.getUniqueId(), "EDIT_XP:" + coreId + ":" + levelNum);
+                player.sendMessage(ChatColor.YELLOW + "Type the new REQUIRED XP number for Level " + levelNum + " (or type 'formula' to use default math).");
+                player.sendMessage(ChatColor.GRAY + "[Type 'cancel' anytime to abort]");
+            } else if (action.contains("Death Msg")) {
+                int levelNum = Integer.parseInt(action.replaceAll("[^0-9]", ""));
+                player.closeInventory();
+                chatPrompts.put(player.getUniqueId(), "EDIT_DEATH_MSG:" + coreId + ":" + levelNum);
+                player.sendMessage(ChatColor.YELLOW + "Type the Custom Death Broadcast (use %killer% and %victim%) (or 'clear' to remove).");
+                player.sendMessage(ChatColor.GRAY + "[Type 'cancel' anytime to abort]");
+            } else if (action.contains("Kill Effect")) {
+                int levelNum = Integer.parseInt(action.replaceAll("[^0-9]", ""));
+                plugin.getAdminGUIManager().openAbilitySelectorMenu(player, coreId, levelNum);
+            }
+        }
+        else if (event.getView().getTitle().startsWith(ChatColor.DARK_PURPLE + "Select Ability: ")) {
+            event.setCancelled(true);
+            if (event.getCurrentItem() == null || event.getCurrentItem().getItemMeta() == null) return;
+            
+            Player player = (Player) event.getWhoClicked();
+            String title = ChatColor.stripColor(event.getView().getTitle());
+            String[] parts = title.replace("Select Ability: ", "").split(" Lvl ");
+            if (parts.length != 2) return;
+            
+            String coreId = parts[0];
+            int levelNum = Integer.parseInt(parts[1]);
+            String action = ChatColor.stripColor(event.getCurrentItem().getItemMeta().getDisplayName());
+
+            if (action.startsWith("Back to Levels")) {
+                plugin.getAdminGUIManager().openCoreLevelMenu(player, coreId);
+            } else if (action.equals("Clear Ability")) {
+                plugin.getConfig().set("stats." + coreId + ".levels." + levelNum + ".ability-unlock", null);
+                plugin.saveConfig();
+                plugin.getConfigManager().loadConfig();
+                player.sendMessage(ChatColor.GREEN + "Ability cleared from Level " + levelNum + "!");
+                plugin.getAdminGUIManager().openCoreLevelMenu(player, coreId);
+            } else {
+                List<String> lore = event.getCurrentItem().getItemMeta().getLore();
+                if (lore != null && !lore.isEmpty()) {
+                    String loreLine = ChatColor.stripColor(lore.get(0));
+                    if (loreLine.startsWith("ID: ")) {
+                        String abilityId = loreLine.substring(4);
+                        plugin.getConfig().set("stats." + coreId + ".levels." + levelNum + ".ability-unlock", abilityId);
+                        plugin.saveConfig();
+                        plugin.getConfigManager().loadConfig();
+                        player.sendMessage(ChatColor.GREEN + "Bound " + abilityId + " to Level " + levelNum + "!");
+                        plugin.getAdminGUIManager().openCoreLevelMenu(player, coreId);
+                    }
+                }
             }
         }
     }
@@ -162,12 +239,52 @@ public class AdminGUIListener implements Listener {
                         try { plugin.getConfig().set(path + ".damage", Double.parseDouble(input)); } catch(Exception e){}
                     } else if (action.equals("EDIT_TRIGGER")) {
                         plugin.getConfig().set(path + ".trigger", input.toUpperCase());
+                    } else if (action.equals("EDIT_DEBUFF")) {
+                        if (input.equalsIgnoreCase("clear")) {
+                            plugin.getConfig().set(path + ".self-effects", null);
+                        } else {
+                            String[] debugParts = input.split(":");
+                            if (debugParts.length == 2) {
+                                String efKey = "DEBUFF_" + System.currentTimeMillis();
+                                plugin.getConfig().set(path + ".self-effects." + efKey + ".type", debugParts[0].toUpperCase());
+                                try {
+                                    plugin.getConfig().set(path + ".self-effects." + efKey + ".duration", Integer.parseInt(debugParts[1]) * 20); // ticks
+                                } catch (Exception ignored) {}
+                                plugin.getConfig().set(path + ".self-effects." + efKey + ".amplifier", 1);
+                            }
+                        }
+                    } else if (action.equals("EDIT_XP")) {
+                        String core = section;
+                        int lvl = Integer.parseInt(id);
+                        if (input.equalsIgnoreCase("formula")) {
+                            plugin.getConfig().set("stats." + core + ".levels." + lvl + ".required-xp", null);
+                        } else {
+                            try { plugin.getConfig().set("stats." + core + ".levels." + lvl + ".required-xp", Integer.parseInt(input)); } catch(Exception e){}
+                        }
+                    } else if (action.equals("EDIT_DEATH_MSG")) {
+                        String core = section;
+                        int lvl = Integer.parseInt(id);
+                        if (input.equalsIgnoreCase("clear")) {
+                            plugin.getConfig().set("stats." + core + ".levels." + lvl + ".death-message", null);
+                        } else {
+                            plugin.getConfig().set("stats." + core + ".levels." + lvl + ".death-message", input);
+                        }
+                    } else if (action.equals("EDIT_KILL_EFFECT")) {
+                        String core = section;
+                        int lvl = Integer.parseInt(id);
+                        if (input.equalsIgnoreCase("clear")) {
+                            plugin.getConfig().set("stats." + core + ".levels." + lvl + ".ability-unlock", null);
+                        } else {
+                            plugin.getConfig().set("stats." + core + ".levels." + lvl + ".ability-unlock", input.toUpperCase());
+                        }
                     }
                     
                     plugin.saveConfig();
                     plugin.getConfigManager().loadConfig(); // Refresh memory
                     
-                    if (section.equals("stat-cores")) {
+                    if (action.startsWith("EDIT_XP") || action.startsWith("EDIT_DEATH_MSG") || action.startsWith("EDIT_KILL_EFFECT")) {
+                        plugin.getAdminGUIManager().openCoreLevelMenu(player, section);
+                    } else if (section.equals("stat-cores")) {
                         plugin.getAdminGUIManager().openCoreEditMenu(player, id);
                     } else {
                         plugin.getAdminGUIManager().openAbilityEditMenu(player, id);
