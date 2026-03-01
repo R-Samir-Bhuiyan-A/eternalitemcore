@@ -225,10 +225,13 @@ public class AdminGUIListener implements Listener {
             int levelNum = Integer.parseInt(parts[1]);
             String action = ChatColor.stripColor(event.getCurrentItem().getItemMeta().getDisplayName());
 
+            // Resolve actual stat-type (e.g. PLAYER_KILLS) from stat-core ID (e.g. SOUL_OF_THE_WARLORD)
+            String statId = plugin.getConfig().getString("stat-cores." + coreId + ".stat-type", coreId);
+
             if (action.startsWith("Back to Levels")) {
                 plugin.getAdminGUIManager().openCoreLevelMenu(player, coreId);
             } else if (action.equals("Clear Ability")) {
-                plugin.getConfig().set("stats." + coreId + ".levels." + levelNum + ".ability-unlock", null);
+                plugin.getConfig().set("stats." + statId + ".levels." + levelNum + ".ability-unlock", null);
                 plugin.saveConfig();
                 plugin.getConfigManager().loadConfig();
                 player.sendMessage(ChatColor.GREEN + "Ability cleared from Level " + levelNum + "!");
@@ -239,7 +242,7 @@ public class AdminGUIListener implements Listener {
                     String loreLine = ChatColor.stripColor(lore.get(0));
                     if (loreLine.startsWith("ID: ")) {
                         String abilityId = loreLine.substring(4);
-                        plugin.getConfig().set("stats." + coreId + ".levels." + levelNum + ".ability-unlock", abilityId);
+                        plugin.getConfig().set("stats." + statId + ".levels." + levelNum + ".ability-unlock", abilityId);
                         plugin.saveConfig();
                         plugin.getConfigManager().loadConfig();
                         player.sendMessage(ChatColor.GREEN + "Bound " + abilityId + " to Level " + levelNum + "!");

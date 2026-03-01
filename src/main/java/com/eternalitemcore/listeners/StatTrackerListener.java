@@ -106,6 +106,7 @@ public class StatTrackerListener implements Listener {
                 
                 if (abilityConfig != null && abilityConfig.getString("type", "").equalsIgnoreCase("KILL_EFFECT")) {
                     plugin.getAbilityManager().triggerAbility(player, abilityCoreId, loc);
+                    return; // Only trigger the highest tier kill effect
                 }
             }
         }
