@@ -3,6 +3,12 @@ settings:
   anti-spawner-farm-kills: true
   max-stats-per-item: 2
 
+# Category Global Cooldowns (in seconds). Set to 0 to disable.
+global-cooldowns:
+  attack: 2.0
+  defense: 0.0
+  misc: 0.0
+
 rarities:
   COMMON:
     stat-slots: 1
@@ -626,12 +632,14 @@ ability-cores:
     type: ACTIVE
     effect: DASH
     cooldown: 8
+    category: ATTACK
     display: "&c[Right-Click] &7Blood Dash (8s Cooldown)"
     description: "Right-Click to rapidly launch yourself forward in the direction you are facing."
   BLADE_DANCE:
     type: ACTIVE
     effect: BLADE_DANCE
     cooldown: 15
+    category: ATTACK
     damage: 25.0
     display: "&c[Right-Click] &7Blade Dance (15s Cooldown)"
     description: "Right-Click to unleash a flurry of sweeping strikes, damaging all nearby entities."
@@ -639,9 +647,18 @@ ability-cores:
     type: ACTIVE
     effect: LIGHTNING_STRIKE
     cooldown: 12
+    category: ATTACK
     damage: 25.0
     display: "&b[Right-Click] &7Mjolnir's Wrath (12s Cooldown)"
     description: "Right-Click to cast lightning out of the sky onto the block or entity you are aiming at."
+  GLITCH_WALK:
+    type: GLITCH_WALK
+    trigger: SNEAK
+    cooldown: 60
+    duration: 5
+    category: MISC
+    display: "&5[Sneak] &7Glitch Walk (60s Cooldown)"
+    description: "Vanish into a glitch state. Invulnerable, invisible, super-speed, and intangible for 5 seconds. Ends with a loud bang and heavy debuffs."
 
   EXPLOSIVE_SHOT:
     type: BOW_ACTIVE

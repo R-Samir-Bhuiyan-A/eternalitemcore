@@ -115,6 +115,11 @@ public class AdminGUIListener implements Listener {
                 chatPrompts.put(player.getUniqueId(), "EDIT_DAMAGE:ability-cores:" + id);
                 player.sendMessage(ChatColor.YELLOW + "Type the new Damage value (e.g. 10.0).");
                 player.sendMessage(ChatColor.GRAY + "[Type 'cancel' anytime to abort]");
+            } else if (action.equals("Edit Durability Cost")) {
+                player.closeInventory();
+                chatPrompts.put(player.getUniqueId(), "EDIT_DURABILITY:ability-cores:" + id);
+                player.sendMessage(ChatColor.YELLOW + "Type the Durability Cost (e.g. 5) (or 0 to disable).");
+                player.sendMessage(ChatColor.GRAY + "[Type 'cancel' anytime to abort]");
             } else if (action.equals("Edit Keybind Trigger")) {
                 player.closeInventory();
                 chatPrompts.put(player.getUniqueId(), "EDIT_TRIGGER:ability-cores:" + id);
@@ -237,6 +242,8 @@ public class AdminGUIListener implements Listener {
                         try { plugin.getConfig().set(path + ".cooldown", Double.parseDouble(input)); } catch(Exception e){}
                     } else if (action.equals("EDIT_DAMAGE")) {
                         try { plugin.getConfig().set(path + ".damage", Double.parseDouble(input)); } catch(Exception e){}
+                    } else if (action.equals("EDIT_DURABILITY")) {
+                        try { plugin.getConfig().set(path + ".durability-cost", Integer.parseInt(input)); } catch(Exception e){}
                     } else if (action.equals("EDIT_TRIGGER")) {
                         plugin.getConfig().set(path + ".trigger", input.toUpperCase());
                     } else if (action.equals("EDIT_DEBUFF")) {

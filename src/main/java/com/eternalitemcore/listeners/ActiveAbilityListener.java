@@ -20,14 +20,20 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 public class ActiveAbilityListener implements Listener {
 
     private final EternalItemCore plugin;
     private final Map<UUID, Map<String, Long>> cooldowns = new HashMap<>();
+    // Per-player category GCDs (ATTACK / DEFENSE / MISC)
+    private final Map<UUID, Map<String, Long>> categoryGcds = new HashMap<>();
+    // Players currently in Glitch State
+    public static final Set<UUID> glitchState = new HashSet<>();
 
     public ActiveAbilityListener(EternalItemCore plugin) {
         this.plugin = plugin;
@@ -66,7 +72,8 @@ public class ActiveAbilityListener implements Listener {
                             int cooldownSeconds = abilitySec.getInt("cooldown", 10);
                             if (effectName != null) {
                                 double damage = abilitySec.getDouble("damage", 25.0);
-                                if (invokeActiveAbility(player, abilityCoreId, effectName, cooldownSeconds, damage)) {
+                                int duraCost = abilitySec.getInt("durability-cost", 0);
+                                if (invokeActiveAbility(player, item, abilityCoreId, effectName, cooldownSeconds, damage, duraCost)) {
                                     triggeredAny = true;
                                 }
                             }
@@ -128,7 +135,7 @@ public class ActiveAbilityListener implements Listener {
         }
     }
 
-    private boolean invokeActiveAbility(Player player, String abilityId, String effectName, int cooldownSeconds, double damage) {
+    private boolean invokeActiveAbility(Player player, ItemStack itemUsed, String abilityId, String effectName, int cooldownSeconds, double damage, int duraCost) {
         UUID pId = player.getUniqueId();
         cooldowns.putIfAbsent(pId, new HashMap<>());
         
@@ -142,6 +149,37 @@ public class ActiveAbilityListener implements Listener {
             net.md_5.bungee.api.ChatMessageType type = net.md_5.bungee.api.ChatMessageType.ACTION_BAR;
             player.spigot().sendMessage(type, new net.md_5.bungee.api.chat.TextComponent(ChatColor.RED + "Ability on Cooldown: " + remaining + "s"));
             return false;
+        }
+        
+        // Categorized GCD check
+        ConfigurationSection abilitySec2 = plugin.getConfig().getConfigurationSection("ability-cores." + abilityId);
+        String category = (abilitySec2 != null) ? abilitySec2.getString("category", "MISC").toUpperCase() : "MISC";
+        categoryGcds.putIfAbsent(pId, new HashMap<>());
+        long lastCatUse = categoryGcds.get(pId).getOrDefault(category, 0L);
+        double gcdSecs = plugin.getConfig().getDouble("global-cooldowns." + category.toLowerCase(), 0.0);
+        if (gcdSecs > 0 && (now - lastCatUse) < (gcdSecs * 1000L)) {
+            long remGcd = (long)(gcdSecs * 1000L - (now - lastCatUse)) / 1000L;
+            net.md_5.bungee.api.ChatMessageType barType = net.md_5.bungee.api.ChatMessageType.ACTION_BAR;
+            player.spigot().sendMessage(barType, new net.md_5.bungee.api.chat.TextComponent(ChatColor.GOLD + "[" + category + " GCD] " + remGcd + "s remaining"));
+            return false;
+        }
+        // Apply GCD for category
+        if (gcdSecs > 0) categoryGcds.get(pId).put(category, now);
+        
+        // Durability Check
+        if (duraCost > 0) {
+            org.bukkit.inventory.meta.Damageable meta = (org.bukkit.inventory.meta.Damageable) itemUsed.getItemMeta();
+            if (meta == null) return false; // Not damageable
+            
+            int maxDura = itemUsed.getType().getMaxDurability();
+            if (maxDura == 0 || (meta.getDamage() + duraCost) >= maxDura) {
+                player.sendMessage(ChatColor.RED + "This item is too damaged to handle the strain of that ability!");
+                player.playSound(player.getLocation(), org.bukkit.Sound.ENTITY_ITEM_BREAK, 1f, 1f);
+                return false;
+            }
+            // Consume Durability
+            meta.setDamage(meta.getDamage() + duraCost);
+            itemUsed.setItemMeta(meta);
         }
         
         ConfigurationSection abilitySec = plugin.getConfig().getConfigurationSection("ability-cores." + abilityId);

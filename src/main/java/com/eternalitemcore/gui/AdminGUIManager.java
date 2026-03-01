@@ -206,6 +206,7 @@ public class AdminGUIManager {
         gui.setItem(10, createGuiItem(Material.NAME_TAG, ChatColor.YELLOW + "Edit Display Name", ChatColor.GRAY + "Current: " + plugin.getConfig().getString("ability-cores." + abilityId + ".display")));
         gui.setItem(11, createGuiItem(Material.CLOCK, ChatColor.AQUA + "Edit Cooldown", ChatColor.GRAY + "Current: " + plugin.getConfig().getDouble("ability-cores." + abilityId + ".cooldown", 0.0) + "s"));
         gui.setItem(12, createGuiItem(Material.IRON_SWORD, ChatColor.RED + "Edit Damage", ChatColor.GRAY + "Current: " + plugin.getConfig().getDouble("ability-cores." + abilityId + ".damage", 0.0)));
+        gui.setItem(13, createGuiItem(Material.ANVIL, ChatColor.GRAY + "Edit Durability Cost", ChatColor.GRAY + "Current: " + plugin.getConfig().getInt("ability-cores." + abilityId + ".durability-cost", 0) + " uses"));
         gui.setItem(14, createGuiItem(Material.LEVER, ChatColor.LIGHT_PURPLE + "Edit Keybind Trigger", ChatColor.GRAY + "Current: " + plugin.getConfig().getString("ability-cores." + abilityId + ".trigger", "DEFAULT")));
         gui.setItem(15, createGuiItem(Material.FERMENTED_SPIDER_EYE, ChatColor.DARK_GREEN + "Edit Self-Debuffs", ChatColor.GRAY + "Configure effects applied", ChatColor.GRAY + "to caster on use."));
         gui.setItem(16, createGuiItem(Material.BARRIER, ChatColor.RED + "Delete Ability", ChatColor.DARK_RED + "Cannot be undone."));

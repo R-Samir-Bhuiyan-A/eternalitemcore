@@ -1,6 +1,7 @@
 package com.eternalitemcore.utils;
 
 import com.eternalitemcore.EternalItemCore;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -8,6 +9,8 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+
+import java.util.UUID;
 
 public class AbilityManager {
 
@@ -54,6 +57,61 @@ public class AbilityManager {
                     player.addPotionEffect(new PotionEffect(effectType, 20 * 10, amplifier)); // 10 seconds duration
                 }
             }
+        } else if (type.equalsIgnoreCase("GLITCH_WALK")) {
+            UUID pid = player.getUniqueId();
+            if (com.eternalitemcore.listeners.ActiveAbilityListener.glitchState.contains(pid)) return;
+            
+            int duration = abilitySec.getInt("duration", 5) * 20; // seconds to ticks
+            
+            // Apply buffs
+            player.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, duration + 10, 0, false, false));
+            player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, duration + 10, 4, false, false)); // Speed 5
+            player.setAllowFlight(true);
+            com.eternalitemcore.listeners.ActiveAbilityListener.glitchState.add(pid);
+            player.sendMessage(ChatColor.DARK_PURPLE + "" + ChatColor.BOLD + "[GLITCH] You phase into the void!");
+            
+            // Trail runnable
+            new org.bukkit.scheduler.BukkitRunnable() {
+                int t = 0;
+                public void run() {
+                    if (!player.isOnline() || !com.eternalitemcore.listeners.ActiveAbilityListener.glitchState.contains(pid)) {
+                        this.cancel();
+                        return;
+                    }
+                    t++;
+                    Location trailLoc = player.getLocation().add(0, 0.5, 0);
+                    trailLoc.getWorld().spawnParticle(Particle.PORTAL, trailLoc, 20, 0.3, 0.5, 0.3, 0.1);
+                    trailLoc.getWorld().spawnParticle(Particle.CRIT_MAGIC, trailLoc, 10, 0.2, 0.4, 0.2, 0.05);
+                    if (t >= duration) this.cancel();
+                }
+            }.runTaskTimer(plugin, 0L, 1L);
+            
+            // Termination runnable
+            new org.bukkit.scheduler.BukkitRunnable() {
+                public void run() {
+                    if (!player.isOnline()) return;
+                    com.eternalitemcore.listeners.ActiveAbilityListener.glitchState.remove(pid);
+                    player.setAllowFlight(false);
+                    player.removePotionEffect(PotionEffectType.INVISIBILITY);
+                    player.removePotionEffect(PotionEffectType.SPEED);
+                    
+                    // Termination debuffs
+                    player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 20 * 4, 2));
+                    player.addPotionEffect(new PotionEffect(PotionEffectType.WEAKNESS, 20 * 6, 1));
+                    
+                    // Loud bang to alert everyone nearby
+                    player.getLocation().getWorld().playSound(player.getLocation(), Sound.ENTITY_WARDEN_SONIC_BOOM, 2.0f, 0.8f);
+                    player.getLocation().getWorld().spawnParticle(Particle.SONIC_BOOM, player.getLocation().add(0,1,0), 1);
+                    player.getLocation().getWorld().spawnParticle(Particle.SQUID_INK, player.getLocation().add(0,1,0), 80, 1.5, 1.5, 1.5, 0.3);
+
+                    // Broadcast to nearby players
+                    for (Player near : player.getLocation().getWorld().getPlayers()) {
+                        if (near.getLocation().distance(player.getLocation()) < 40) {
+                            near.sendMessage(ChatColor.DARK_PURPLE + "[GLITCH] " + ChatColor.GRAY + player.getName() + ChatColor.DARK_PURPLE + " has materialized!");
+                        }
+                    }
+                }
+            }.runTaskLater(plugin, duration);
         } else if (type.equalsIgnoreCase("KILL_EFFECT") && loc != null) {
             String effectName = abilitySec.getString("effect");
             boolean hideForSelf = plugin.getPlayerSettingsManager().hasEffectsHidden(player);

@@ -46,6 +46,7 @@ public class EternalItemCore extends JavaPlugin {
         pluginManager.registerEvents(new com.eternalitemcore.listeners.AntiCraftListener(this), this);
         pluginManager.registerEvents(new StatTrackerListener(this), this);
         pluginManager.registerEvents(new com.eternalitemcore.listeners.ActiveAbilityListener(this), this);
+        pluginManager.registerEvents(new com.eternalitemcore.listeners.GlitchStateListener(), this);
         pluginManager.registerEvents(new com.eternalitemcore.listeners.BowListener(this), this);
         pluginManager.registerEvents(new com.eternalitemcore.gui.AdminGUIListener(this), this);
 
