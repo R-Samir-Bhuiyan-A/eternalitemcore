@@ -135,33 +135,45 @@ public class AdminGUIManager {
 
     public void openCoreLevelMenu(Player player, String coreId) {
         Inventory gui = Bukkit.createInventory(null, 54, ChatColor.GOLD + "Levels: " + coreId);
-        
+
+        // Resolve the actual stat-type ID from the stat-core (e.g. SOUL_OF_THE_WARLORD → PLAYER_KILLS)
+        String statId = plugin.getConfig().getString("stat-cores." + coreId + ".stat-type", coreId);
+
         // Let them edit up to Level 5 visually
         for (int i = 1; i <= 5; i++) {
-            String path = "stats." + coreId + ".levels." + i;
+            String path = "stats." + statId + ".levels." + i;
             String reqStr = "formula";
             // Check if exact XP req is set instead of formula
             if (plugin.getConfig().contains(path + ".required-xp")) {
                 reqStr = plugin.getConfig().getInt(path + ".required-xp") + " XP";
             }
             String dmStr = plugin.getConfig().getString(path + ".death-message", "None");
-            
-            gui.setItem(10 + (i-1), createGuiItem(Material.EXPERIENCE_BOTTLE, ChatColor.YELLOW + "Level " + i + " XP", 
-                ChatColor.GRAY + "Current: " + reqStr, 
+
+            // Resolve kill effect display name (if bound)
+            String boundAbilityId = plugin.getConfig().getString(path + ".ability-unlock", null);
+            String killEffectStr;
+            if (boundAbilityId != null) {
+                String dispName = plugin.getConfig().getString("ability-cores." + boundAbilityId + ".display", boundAbilityId);
+                killEffectStr = ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&', dispName));
+            } else {
+                killEffectStr = "None";
+            }
+
+            gui.setItem(10 + (i-1), createGuiItem(Material.EXPERIENCE_BOTTLE, ChatColor.YELLOW + "Level " + i + " XP",
+                ChatColor.GRAY + "Current: " + reqStr,
                 ChatColor.YELLOW + "Click to edit required XP."));
-                
-            gui.setItem(19 + (i-1), createGuiItem(Material.SKELETON_SKULL, ChatColor.RED + "Level " + i + " Death Msg", 
+
+            gui.setItem(19 + (i-1), createGuiItem(Material.SKELETON_SKULL, ChatColor.RED + "Level " + i + " Death Msg",
                 ChatColor.GRAY + "Current: " + dmStr,
                 ChatColor.YELLOW + "Click to edit broadcast."));
-                
-            gui.setItem(28 + (i-1), createGuiItem(Material.BLAZE_POWDER, ChatColor.LIGHT_PURPLE + "Level " + i + " Kill Effect", 
-                ChatColor.GRAY + "Current Ability ID:",
-                ChatColor.GRAY + plugin.getConfig().getString(path + ".ability-unlock", "None"),
-                ChatColor.YELLOW + "Click to bind Kill Effect."));
+
+            gui.setItem(28 + (i-1), createGuiItem(Material.BLAZE_POWDER, ChatColor.LIGHT_PURPLE + "Level " + i + " Kill Effect",
+                ChatColor.GRAY + "Bound: " + killEffectStr,
+                ChatColor.YELLOW + "Click to switch kill effect."));
         }
-        
+
         gui.setItem(49, createGuiItem(Material.ARROW, ChatColor.RED + "Back to Editing: " + coreId));
-        
+
         ItemStack filler = createGuiItem(Material.GRAY_STAINED_GLASS_PANE, " ");
         for (int i = 0; i < 54; i++) {
             if (gui.getItem(i) == null) gui.setItem(i, filler);

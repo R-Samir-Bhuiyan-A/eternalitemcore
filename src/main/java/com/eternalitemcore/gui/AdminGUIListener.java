@@ -320,28 +320,32 @@ public class AdminGUIListener implements Listener {
                             }
                         }
                     } else if (action.equals("EDIT_XP")) {
-                        String core = section;
+                        String coreIdForStat = section;
+                        // Resolve actual stat-type (e.g. PLAYER_KILLS) from stat-core ID (e.g. SOUL_OF_THE_WARLORD)
+                        String statIdForStat = plugin.getConfig().getString("stat-cores." + coreIdForStat + ".stat-type", coreIdForStat);
                         int lvl = Integer.parseInt(id);
                         if (input.equalsIgnoreCase("formula")) {
-                            plugin.getConfig().set("stats." + core + ".levels." + lvl + ".required-xp", null);
+                            plugin.getConfig().set("stats." + statIdForStat + ".levels." + lvl + ".required-xp", null);
                         } else {
-                            try { plugin.getConfig().set("stats." + core + ".levels." + lvl + ".required-xp", Integer.parseInt(input)); } catch(Exception e){}
+                            try { plugin.getConfig().set("stats." + statIdForStat + ".levels." + lvl + ".required-xp", Integer.parseInt(input)); } catch(Exception e){}
                         }
                     } else if (action.equals("EDIT_DEATH_MSG")) {
-                        String core = section;
+                        String coreIdForStat = section;
+                        String statIdForStat = plugin.getConfig().getString("stat-cores." + coreIdForStat + ".stat-type", coreIdForStat);
                         int lvl = Integer.parseInt(id);
                         if (input.equalsIgnoreCase("clear")) {
-                            plugin.getConfig().set("stats." + core + ".levels." + lvl + ".death-message", null);
+                            plugin.getConfig().set("stats." + statIdForStat + ".levels." + lvl + ".death-message", null);
                         } else {
-                            plugin.getConfig().set("stats." + core + ".levels." + lvl + ".death-message", input);
+                            plugin.getConfig().set("stats." + statIdForStat + ".levels." + lvl + ".death-message", input);
                         }
                     } else if (action.equals("EDIT_KILL_EFFECT")) {
-                        String core = section;
+                        String coreIdForStat = section;
+                        String statIdForStat = plugin.getConfig().getString("stat-cores." + coreIdForStat + ".stat-type", coreIdForStat);
                         int lvl = Integer.parseInt(id);
                         if (input.equalsIgnoreCase("clear")) {
-                            plugin.getConfig().set("stats." + core + ".levels." + lvl + ".ability-unlock", null);
+                            plugin.getConfig().set("stats." + statIdForStat + ".levels." + lvl + ".ability-unlock", null);
                         } else {
-                            plugin.getConfig().set("stats." + core + ".levels." + lvl + ".ability-unlock", input.toUpperCase());
+                            plugin.getConfig().set("stats." + statIdForStat + ".levels." + lvl + ".ability-unlock", input.toUpperCase());
                         }
                     }
                     
