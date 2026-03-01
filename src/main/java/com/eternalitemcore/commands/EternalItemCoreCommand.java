@@ -41,7 +41,7 @@ public class EternalItemCoreCommand implements CommandExecutor {
             }
             plugin.getPlayerSettingsManager().toggleEffectsHidden(player);
             boolean hidden = plugin.getPlayerSettingsManager().hasEffectsHidden(player);
-            player.sendMessage(ChatColor.GREEN + "Your item kill effects are now " + (hidden ? ChatColor.RED + "HIDDEN" : ChatColor.GREEN + "VISIBLE") + ChatColor.GREEN + " to you.");
+            player.sendMessage(ChatColor.GREEN + "Your item kill effects are now " + (hidden ? ChatColor.RED + "DISABLED" : ChatColor.GREEN + "ENABLED") + ChatColor.GREEN + " for everyone.");
             return true;
         }
 

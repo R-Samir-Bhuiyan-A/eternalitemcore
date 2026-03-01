@@ -69,8 +69,14 @@ jobs:
           mv "$JAR_FILE" "./artifact-bin/EternalItemCore-$RELEASE_TAG.jar"
           echo "jar_path=./artifact-bin/EternalItemCore-$RELEASE_TAG.jar" >> $GITHUB_OUTPUT
           
+          # Get the latest commit message
+          COMMIT_MSG=$(git log -1 --pretty=%B)
+
           echo "notes<<EOF" >> $GITHUB_OUTPUT
           echo "## 🚀 EternalItemCore Stable Release (Build $SHORT_SHA)" >> $GITHUB_OUTPUT
+          echo "" >> $GITHUB_OUTPUT
+          echo "### 📝 What's Changed" >> $GITHUB_OUTPUT
+          echo "$COMMIT_MSG" >> $GITHUB_OUTPUT
           echo "" >> $GITHUB_OUTPUT
           echo "### Verification Pipeline" >> $GITHUB_OUTPUT
           echo "✅ **Java Build**: Compiled natively targeting Paper API JDK 21" >> $GITHUB_OUTPUT

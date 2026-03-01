@@ -34,11 +34,8 @@ public class AbilityManager {
                 float volume = (float) abilitySec.getDouble("volume", 1.0);
                 float pitch = (float) abilitySec.getDouble("pitch", 1.0);
                 
-                // Play for everyone EXCEPT the player if they have it hidden
-                boolean hideForSelf = plugin.getPlayerSettingsManager().hasEffectsHidden(player);
                 for (Player p : loc.getWorld().getPlayers()) {
                     if (p.getLocation().distance(loc) < 30) {
-                        if (p.equals(player) && hideForSelf) continue;
                         p.playSound(loc, sound, volume, pitch);
                     }
                 }
@@ -132,7 +129,12 @@ public class AbilityManager {
 
         } else if (type.equalsIgnoreCase("KILL_EFFECT") && loc != null) {
             String effectName = abilitySec.getString("effect");
-            boolean hideForSelf = plugin.getPlayerSettingsManager().hasEffectsHidden(player);
+            boolean hideEffects = plugin.getPlayerSettingsManager().hasEffectsHidden(player);
+            
+            // If the player toggled their kill effects off, don't play the effect at all for anyone
+            if (hideEffects) {
+                return;
+            }
 
             if (effectName != null && effectName.equalsIgnoreCase("LIGHTNING")) {
                 boolean visualOnly = abilitySec.getBoolean("visual-only", true);
