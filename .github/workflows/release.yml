@@ -1,82 +1,92 @@
-name: CI/CD Build and Release
+name: EternalItemCore Auto CI/CD Pipeline
 
 on:
   push:
     branches: [ "main", "master" ]
-  workflow_dispatch: # Allows manual triggering from the Actions tab
+  pull_request:
+    branches: [ "main", "master" ]
+
+# Needed for GHCR pushes and GitHub Releases
+permissions:
+  contents: write
+  packages: write
+  pull-requests: write
+  id-token: write
 
 jobs:
-  build_and_release:
-    name: Build & Auto-Release
+  build-plugin:
+    name: Build Plugin (Maven/Java)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+      - name: Cache Maven packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+      - name: Compile Java Plugin (.jar)
+        run: mvn clean package --file pom.xml
+      - name: Upload Plugin Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: EternalItemCore-DevBuild
+          path: ./target/EternalItemCore-*.jar
+          if-no-files-found: error
+
+  release:
+    name: Auto Release Plugin
+    needs: [build-plugin]
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     permissions:
-      contents: write # Needed to create a release and upload assets
-
+      contents: write
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      
+      - name: Download Built Plugin Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: EternalItemCore-DevBuild
+          path: ./artifact-bin
+          
+      - name: Auto-Generate Release Notes
+        id: generate_changelog
+        run: |
+          # Generate a short hash payload for unique releasing without tags
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          RELEASE_TAG="v1.4.0-$SHORT_SHA"
+          echo "release_tag=$RELEASE_TAG" >> $GITHUB_OUTPUT
+          
+          # Rename the artifact to match the release tag dynamically
+          JAR_FILE=$(find ./artifact-bin -name "EternalItemCore-*.jar" | head -n 1)
+          mv "$JAR_FILE" "./artifact-bin/EternalItemCore-$RELEASE_TAG.jar"
+          echo "jar_path=./artifact-bin/EternalItemCore-$RELEASE_TAG.jar" >> $GITHUB_OUTPUT
+          
+          echo "notes<<EOF" >> $GITHUB_OUTPUT
+          echo "## 🚀 EternalItemCore Stable Release (Build $SHORT_SHA)" >> $GITHUB_OUTPUT
+          echo "" >> $GITHUB_OUTPUT
+          echo "### Verification Pipeline" >> $GITHUB_OUTPUT
+          echo "✅ **Java Build**: Compiled natively targeting Paper API JDK 21" >> $GITHUB_OUTPUT
+          echo "" >> $GITHUB_OUTPUT
+          echo "### Instructions" >> $GITHUB_OUTPUT
+          echo "- **Plugin Installation**: Drop the \`EternalItemCore-$RELEASE_TAG.jar\` file below into your \`plugins/\` folder and configure via the dashboard or config." >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
-    - name: Set up JDK 21
-      uses: actions/setup-java@v4
-      with:
-        java-version: '21'
-        distribution: 'temurin'
-        cache: 'maven'
-
-    - name: Verify and Extract Maven Version
-      id: get_version
-      run: |
-        # Extract the version from pom.xml
-        POM_VERSION=$(mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)
-        echo "VERSION=$POM_VERSION" >> $GITHUB_ENV
-        echo "Extracted version: $POM_VERSION"
-
-    - name: Build Plugin JAR
-      run: mvn -B clean package --file pom.xml
-
-    - name: Prepare Versioned Artifact
-      id: prepare_artifact
-      run: |
-        # Create an auto-versioned file name using the run number as a build prefix
-        BUILD_PREFIX="b${{ github.run_number }}"
-        CLEAN_VERSION=$(echo "${{ env.VERSION }}" | sed 's/-SNAPSHOT//')
-        
-        VERSIONED_NAME="EternalItemCore-v${CLEAN_VERSION}-${BUILD_PREFIX}.jar"
-        TAG_NAME="v${CLEAN_VERSION}-${BUILD_PREFIX}"
-        
-        # Rename the built jar to our auto-versioned format
-        mv target/EternalItemCore-*.jar "target/${VERSIONED_NAME}"
-        
-        echo "FILE_NAME=${VERSIONED_NAME}" >> $GITHUB_ENV
-        echo "TAG_NAME=${TAG_NAME}" >> $GITHUB_ENV
-        
-        echo "Prepared artifact: ${VERSIONED_NAME}"
-        echo "Tag Name: ${TAG_NAME}"
-
-    - name: Generate Release Message
-      id: generate_release_notes
-      run: |
-        # Generate a descriptive message for the release
-        echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV
-        echo "🚀 **Automated Plugin Release** 🚀" >> $GITHUB_ENV
-        echo "" >> $GITHUB_ENV
-        echo "This release was automatically built, verified, and deployed by the GitHub Actions CI/CD pipeline." >> $GITHUB_ENV
-        echo "" >> $GITHUB_ENV
-        echo "### Version Info" >> $GITHUB_ENV
-        echo "- **Plugin Version:** \`${{ env.VERSION }}\`" >> $GITHUB_ENV
-        echo "- **Build Prefix:** \`#${{ github.run_number }}\`" >> $GITHUB_ENV
-        echo "- **Generated Artifact:** \`${{ env.FILE_NAME }}\`" >> $GITHUB_ENV
-        echo "" >> $GITHUB_ENV
-        echo "### Installation" >> $GITHUB_ENV
-        echo "Download \`${{ env.FILE_NAME }}\` and place it in your server's \`plugins/\` folder, then restart or reload your server." >> $GITHUB_ENV
-        echo "EOF" >> $GITHUB_ENV
-
-    - name: Auto Publish Release
-      uses: softprops/action-gh-release@v2
-      with:
-        tag_name: ${{ env.TAG_NAME }}
-        name: "Release ${{ env.TAG_NAME }}"
-        body: ${{ env.RELEASE_NOTES }}
-        draft: false
-        prerelease: false
-        files: target/${{ env.FILE_NAME }}
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.generate_changelog.outputs.release_tag }}
+          name: "EternalItemCore Build ${{ steps.generate_changelog.outputs.release_tag }}"
+          body: ${{ steps.generate_changelog.outputs.notes }}
+          files: ${{ steps.generate_changelog.outputs.jar_path }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          fail_on_unmatched_files: true
