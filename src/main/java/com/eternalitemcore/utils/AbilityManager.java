@@ -265,7 +265,11 @@ public class AbilityManager {
                         double x = Math.cos(angle) * 1.5;
                         double z = Math.sin(angle) * 1.5;
                         loc.getWorld().spawnParticle(Particle.END_ROD, loc.clone().add(x, angle * 0.1, z), 2, 0, 0, 0, 0);
-                        loc.getWorld().spawnParticle(Particle.DRAGON_BREATH, loc.clone().add(-x, angle * 0.1, -z), 5, 0, 0, 0, 0.02);
+                        try {
+                            loc.getWorld().spawnParticle(Particle.SPELL_WITCH, loc.clone().add(-x, angle * 0.1, -z), 5, 0, 0, 0, 0.02);
+                        } catch (Exception e) {
+                            // Ignored if unsupported
+                        }
                         if (angle > Math.PI * 4) this.cancel();
                     }
                 }.runTaskTimer(plugin, 0L, 1L);
