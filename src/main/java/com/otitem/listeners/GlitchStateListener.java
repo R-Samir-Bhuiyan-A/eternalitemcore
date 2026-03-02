@@ -1,4 +1,4 @@
-package com.eternalitemcore.listeners;
+package com.otitem.listeners;
 
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;

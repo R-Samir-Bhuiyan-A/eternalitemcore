@@ -1,6 +1,6 @@
-package com.eternalitemcore.utils;
+package com.otitem.utils;
 
-import com.eternalitemcore.EternalItemCore;
+import com.otitem.OTItem;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
@@ -13,10 +13,9 @@ import java.util.regex.Pattern;
 
 public class LoreManager {
 
-    private final EternalItemCore plugin;
-    private static final Pattern HEX_PATTERN = Pattern.compile("&#([A-Fa-f0-9]{6})");
+    private final OTItem plugin;
 
-    public LoreManager(EternalItemCore plugin) {
+    public LoreManager(OTItem plugin) {
         this.plugin = plugin;
     }
 
@@ -80,16 +79,10 @@ public class LoreManager {
     }
 
     /**
-     * Replaces standard & codes and &#RRGGBB hex codes.
+     * Replaces standard & codes.
      */
     public String color(String message) {
         if (message == null) return "";
-        Matcher matcher = HEX_PATTERN.matcher(message);
-        StringBuffer buffer = new StringBuffer();
-        while (matcher.find()) {
-            matcher.appendReplacement(buffer, ChatColor.of("#" + matcher.group(1)).toString());
-        }
-        matcher.appendTail(buffer);
-        return ChatColor.translateAlternateColorCodes('&', buffer.toString());
+        return ChatColor.translateAlternateColorCodes('&', message);
     }
 }

@@ -1,6 +1,6 @@
-package com.eternalitemcore.listeners;
+package com.otitem.listeners;
 
-import com.eternalitemcore.EternalItemCore;
+import com.otitem.OTItem;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -28,7 +28,7 @@ import java.util.UUID;
 
 public class ActiveAbilityListener implements Listener {
 
-    private final EternalItemCore plugin;
+    private final OTItem plugin;
     private final Map<UUID, Map<String, Long>> cooldowns = new HashMap<>();
     // Per-player category GCDs (ATTACK / DEFENSE / MISC)
     private final Map<UUID, Map<String, Long>> categoryGcds = new HashMap<>();
@@ -37,7 +37,7 @@ public class ActiveAbilityListener implements Listener {
     // Track ground state per player for reliable JUMP detection
     private final Map<UUID, Boolean> wasOnGround = new HashMap<>();
 
-    public ActiveAbilityListener(EternalItemCore plugin) {
+    public ActiveAbilityListener(OTItem plugin) {
         this.plugin = plugin;
     }
 
@@ -92,7 +92,7 @@ public class ActiveAbilityListener implements Listener {
      * FIRE_SINGLE → fall through to per-item single-key matching
      */
     private boolean processAllTriggers(Player player, String action) {
-        com.eternalitemcore.utils.ComboInputTracker.ComboResult result =
+        com.otitem.utils.ComboInputTracker.ComboResult result =
                 plugin.getComboInputTracker().recordInput(player, action);
 
         switch (result.type()) {

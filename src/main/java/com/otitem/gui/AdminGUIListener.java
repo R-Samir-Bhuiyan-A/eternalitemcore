@@ -1,6 +1,6 @@
-package com.eternalitemcore.gui;
+package com.otitem.gui;
 
-import com.eternalitemcore.EternalItemCore;
+import com.otitem.OTItem;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -16,14 +16,14 @@ import java.util.UUID;
 
 public class AdminGUIListener implements Listener {
 
-    private final EternalItemCore plugin;
+    private final OTItem plugin;
     private final Map<UUID, String> chatPrompts = new HashMap<>();
     /** Per-player in-progress combo sequence for the Combo Builder GUI */
     private final Map<UUID, List<String>> comboSessions = new HashMap<>();
     /** Stores which abilityId the player is currently editing in the Combo Builder */
     private final Map<UUID, String> comboEditingAbility = new HashMap<>();
 
-    public AdminGUIListener(EternalItemCore plugin) {
+    public AdminGUIListener(OTItem plugin) {
         this.plugin = plugin;
     }
 

@@ -1,6 +1,6 @@
-package com.eternalitemcore.listeners;
+package com.otitem.listeners;
 
-import com.eternalitemcore.EternalItemCore;
+import com.otitem.OTItem;
 import org.bukkit.NamespacedKey;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -13,9 +13,9 @@ import org.bukkit.persistence.PersistentDataType;
 
 public class AntiCraftListener implements Listener {
 
-    private final EternalItemCore plugin;
+    private final OTItem plugin;
 
-    public AntiCraftListener(EternalItemCore plugin) {
+    public AntiCraftListener(OTItem plugin) {
         this.plugin = plugin;
     }
 

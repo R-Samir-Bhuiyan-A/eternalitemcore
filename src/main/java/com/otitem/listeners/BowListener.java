@@ -1,6 +1,6 @@
-package com.eternalitemcore.listeners;
+package com.otitem.listeners;
 
-import com.eternalitemcore.EternalItemCore;
+import com.otitem.OTItem;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Arrow;
@@ -21,12 +21,12 @@ import java.util.UUID;
 
 public class BowListener implements Listener {
 
-    private final EternalItemCore plugin;
+    private final OTItem plugin;
     
     // Player UUID -> (Ability ID -> Array[Remaining Charges, Last Reload Time])
     private final Map<UUID, Map<String, long[]>> abilityCharges = new HashMap<>();
 
-    public BowListener(EternalItemCore plugin) {
+    public BowListener(OTItem plugin) {
         this.plugin = plugin;
     }
 

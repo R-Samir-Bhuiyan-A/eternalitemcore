@@ -1,6 +1,6 @@
-package com.eternalitemcore.commands;
+package com.otitem.commands;
 
-import com.eternalitemcore.EternalItemCore;
+import com.otitem.OTItem;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -8,17 +8,17 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-public class EternalItemCoreCommand implements CommandExecutor {
+public class OTItemCommand implements CommandExecutor {
 
-    private final EternalItemCore plugin;
+    private final OTItem plugin;
 
-    public EternalItemCoreCommand(EternalItemCore plugin) {
+    public OTItemCommand(OTItem plugin) {
         this.plugin = plugin;
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!sender.hasPermission("eternalitemcore.admin")) {
+        if (!sender.hasPermission("otitem.admin")) {
             sender.sendMessage(ChatColor.RED + "You do not have permission to use this command.");
             return true;
         }
@@ -35,7 +35,7 @@ public class EternalItemCoreCommand implements CommandExecutor {
                 sender.sendMessage(ChatColor.RED + "Only players can use this command.");
                 return true;
             }
-            if (!player.hasPermission("eternalitemcore.player")) {
+            if (!player.hasPermission("otitem.player")) {
                 player.sendMessage(ChatColor.RED + "You do not have permission.");
                 return true;
             }
@@ -50,7 +50,7 @@ public class EternalItemCoreCommand implements CommandExecutor {
                 sender.sendMessage(ChatColor.RED + "Only players can use this command.");
                 return true;
             }
-            if (!player.hasPermission("eternalitemcore.player")) {
+            if (!player.hasPermission("otitem.player")) {
                 player.sendMessage(ChatColor.RED + "You do not have permission.");
                 return true;
             }
@@ -78,7 +78,7 @@ public class EternalItemCoreCommand implements CommandExecutor {
                 sender.sendMessage(ChatColor.RED + "Only players can use this command.");
                 return true;
             }
-            if (!player.hasPermission("eternalitemcore.player")) {
+            if (!player.hasPermission("otitem.player")) {
                 player.sendMessage(ChatColor.RED + "You do not have permission.");
                 return true;
             }
@@ -103,7 +103,7 @@ public class EternalItemCoreCommand implements CommandExecutor {
             return true;
         }
 
-        if (!sender.hasPermission("eternalitemcore.admin")) {
+        if (!sender.hasPermission("otitem.admin")) {
             sender.sendMessage(ChatColor.RED + "You do not have permission to use admin commands.");
             return true;
         }
@@ -133,7 +133,7 @@ public class EternalItemCoreCommand implements CommandExecutor {
                     target.getInventory().addItem(coreItem);
                     sender.sendMessage(ChatColor.GREEN + "Gave " + target.getName() + " a " + coreId);
                 } else {
-                    sender.sendMessage(ChatColor.RED + "Usage: /eicore give <player> <core_id>");
+                    sender.sendMessage(ChatColor.RED + "Usage: /otitem give <player> <core_id>");
                 }
                 break;
                 
@@ -161,7 +161,7 @@ public class EternalItemCoreCommand implements CommandExecutor {
                     plugin.getLoreManager().updateLore(hand);
                     sender.sendMessage(ChatColor.GREEN + "Set level of " + statId + " to " + level);
                 } else {
-                    sender.sendMessage(ChatColor.RED + "Usage: /eicore setlevel <player> <stat_id> <level>");
+                    sender.sendMessage(ChatColor.RED + "Usage: /otitem setlevel <player> <stat_id> <level>");
                 }
                 break;
 
@@ -189,7 +189,7 @@ public class EternalItemCoreCommand implements CommandExecutor {
                     plugin.getLoreManager().updateLore(hand);
                     sender.sendMessage(ChatColor.GREEN + "Added " + amount + " to " + statId);
                 } else {
-                    sender.sendMessage(ChatColor.RED + "Usage: /eicore addstat <player> <stat_id> <amount>");
+                    sender.sendMessage(ChatColor.RED + "Usage: /otitem addstat <player> <stat_id> <amount>");
                 }
                 break;
 
@@ -217,14 +217,14 @@ public class EternalItemCoreCommand implements CommandExecutor {
                         sender.sendMessage(ChatColor.YELLOW + "That item has no stats to clear.");
                     }
                 } else {
-                    sender.sendMessage(ChatColor.RED + "Usage: /eicore clearstats <player>");
+                    sender.sendMessage(ChatColor.RED + "Usage: /otitem clearstats <player>");
                 }
                 break;
 
             case "reload":
                 plugin.reloadConfig();
                 plugin.getConfigManager().loadConfig();
-                sender.sendMessage(ChatColor.GREEN + "EternalItemCore configuration reloaded successfully!");
+                sender.sendMessage(ChatColor.GREEN + "OTItem configuration reloaded successfully!");
                 break;
                 
             default:
@@ -236,19 +236,19 @@ public class EternalItemCoreCommand implements CommandExecutor {
     }
     
     private void sendHelp(CommandSender sender) {
-        sender.sendMessage(ChatColor.GOLD + "=== EternalItemCore ===");
-        if (sender.hasPermission("eternalitemcore.player")) {
-            sender.sendMessage(ChatColor.YELLOW + "/eicore toggleeffects" + ChatColor.GRAY + " - Toggle your own kill visual effects.");
-            sender.sendMessage(ChatColor.YELLOW + "/eicore viewstats" + ChatColor.GRAY + " - View exact stats on your held weapon.");
-            sender.sendMessage(ChatColor.YELLOW + "/eicore togglebroadcast" + ChatColor.GRAY + " - Toggle global level-up messages for held item.");
+        sender.sendMessage(ChatColor.GOLD + "=== OT-item ===");
+        if (sender.hasPermission("otitem.player")) {
+            sender.sendMessage(ChatColor.YELLOW + "/otitem toggleeffects" + ChatColor.GRAY + " - Toggle your own kill visual effects.");
+            sender.sendMessage(ChatColor.YELLOW + "/otitem viewstats" + ChatColor.GRAY + " - View exact stats on your held weapon.");
+            sender.sendMessage(ChatColor.YELLOW + "/otitem togglebroadcast" + ChatColor.GRAY + " - Toggle global level-up messages for held item.");
         }
-        if (sender.hasPermission("eternalitemcore.admin")) {
-            sender.sendMessage(ChatColor.YELLOW + "/eicore edit" + ChatColor.GRAY + " - Open the Item Mastery Admin GUI (Edit Cores/Abilities).");
-            sender.sendMessage(ChatColor.YELLOW + "/eicore give <player> <core_id>" + ChatColor.GRAY + " - Give a specific core to a player.");
-            sender.sendMessage(ChatColor.YELLOW + "/eicore setlevel <player> <stat_id> <level>" + ChatColor.GRAY + " - Force set an item's stat level.");
-            sender.sendMessage(ChatColor.YELLOW + "/eicore addstat <player> <stat_id> <amount>" + ChatColor.GRAY + " - Add raw stat value (XP) to an item.");
-            sender.sendMessage(ChatColor.YELLOW + "/eicore clearstats <player>" + ChatColor.GRAY + " - Wipe all stats from a player's held item.");
-            sender.sendMessage(ChatColor.YELLOW + "/eicore reload" + ChatColor.GRAY + " - Reloads config.yml from disk.");
+        if (sender.hasPermission("otitem.admin")) {
+            sender.sendMessage(ChatColor.YELLOW + "/otitem edit" + ChatColor.GRAY + " - Open the Item Mastery Admin GUI (Edit Cores/Abilities).");
+            sender.sendMessage(ChatColor.YELLOW + "/otitem give <player> <core_id>" + ChatColor.GRAY + " - Give a specific core to a player.");
+            sender.sendMessage(ChatColor.YELLOW + "/otitem setlevel <player> <stat_id> <level>" + ChatColor.GRAY + " - Force set an item's stat level.");
+            sender.sendMessage(ChatColor.YELLOW + "/otitem addstat <player> <stat_id> <amount>" + ChatColor.GRAY + " - Add raw stat value (XP) to an item.");
+            sender.sendMessage(ChatColor.YELLOW + "/otitem clearstats <player>" + ChatColor.GRAY + " - Wipe all stats from a player's held item.");
+            sender.sendMessage(ChatColor.YELLOW + "/otitem reload" + ChatColor.GRAY + " - Reloads config.yml from disk.");
         }
     }
 }

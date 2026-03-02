@@ -1,6 +1,6 @@
-package com.eternalitemcore.config;
+package com.otitem.config;
 
-import com.eternalitemcore.EternalItemCore;
+import com.otitem.OTItem;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 
@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class ConfigManager {
 
-    private final EternalItemCore plugin;
+    private final OTItem plugin;
     private boolean updateLore;
 
     // Stat Core Types maps
@@ -18,7 +18,7 @@ public class ConfigManager {
     // Allowed Stats per Item Type (String from enum name)
     private final Map<String, List<String>> allowedStats = new HashMap<>(); 
 
-    public ConfigManager(EternalItemCore plugin) {
+    public ConfigManager(OTItem plugin) {
         this.plugin = plugin;
         loadConfig();
     }

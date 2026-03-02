@@ -1,18 +1,18 @@
-name: EternalItemCore
+name: OT-item
 version: '${project.version}'
-main: com.eternalitemcore.EternalItemCore
+main: com.otitem.OTItem
 api-version: '1.20'
-authors: [ You ]
+authors: [ Open trident ]
 description: A modular stat + evolution + ability + effect system driven entirely by config.
 commands:
-  eternalitemcore:
+  otitem:
     description: Main plugin command
-    aliases: [eicore]
-    permission: eternalitemcore.admin
+    aliases: [oit]
+    permission: otitem.admin
 permissions:
-  eternalitemcore.admin:
-    description: Admin permissions for EternalItemCore
+  otitem.admin:
+    description: Admin permissions for OT-item
     default: op
-  eternalitemcore.player:
-    description: Player commands for EternalItemCore
+  otitem.player:
+    description: Player commands for OT-item
     default: true

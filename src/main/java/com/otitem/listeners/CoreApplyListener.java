@@ -1,6 +1,6 @@
-package com.eternalitemcore.listeners;
+package com.otitem.listeners;
 
-import com.eternalitemcore.EternalItemCore;
+import com.otitem.OTItem;
 import org.bukkit.ChatColor;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
@@ -16,9 +16,9 @@ import java.util.List;
 
 public class CoreApplyListener implements Listener {
 
-    private final EternalItemCore plugin;
+    private final OTItem plugin;
 
-    public CoreApplyListener(EternalItemCore plugin) {
+    public CoreApplyListener(OTItem plugin) {
         this.plugin = plugin;
     }
 
@@ -127,7 +127,7 @@ public class CoreApplyListener implements Listener {
                 plainTitle = plainTitle.substring(0, 20); // Prevent 32 char limit crash
             }
             meta.setTitle(ChatColor.GOLD + "Tome of " + plainTitle);
-            meta.setAuthor("Eternal Item Core");
+            meta.setAuthor("OT-Item");
             
             int maxLevel = statConfig.getInt("max-level", 5);
             for (int i = 1; i <= maxLevel; i++) {
@@ -173,8 +173,11 @@ public class CoreApplyListener implements Listener {
             }
             
             book.setItemMeta(meta);
-            player.getInventory().addItem(book);
-            player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e&oA mysterious tome appears in your inventory..."));
+            java.util.HashMap<Integer, org.bukkit.inventory.ItemStack> excess = player.getInventory().addItem(book);
+            for (org.bukkit.inventory.ItemStack drop : excess.values()) {
+                player.getWorld().dropItemNaturally(player.getLocation(), drop);
+            }
+            player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e&oA mysterious tome appears..."));
         }
     }
 }

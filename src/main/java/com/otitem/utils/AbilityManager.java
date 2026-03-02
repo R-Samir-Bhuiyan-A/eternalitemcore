@@ -1,6 +1,6 @@
-package com.eternalitemcore.utils;
+package com.otitem.utils;
 
-import com.eternalitemcore.EternalItemCore;
+import com.otitem.OTItem;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Particle;
@@ -14,9 +14,9 @@ import java.util.UUID;
 
 public class AbilityManager {
 
-    private final EternalItemCore plugin;
+    private final OTItem plugin;
 
-    public AbilityManager(EternalItemCore plugin) {
+    public AbilityManager(OTItem plugin) {
         this.plugin = plugin;
     }
 
@@ -56,7 +56,7 @@ public class AbilityManager {
             }
         } else if (type.equalsIgnoreCase("GLITCH_WALK")) {
             UUID pid = player.getUniqueId();
-            if (com.eternalitemcore.listeners.ActiveAbilityListener.glitchState.contains(pid)) return;
+            if (com.otitem.listeners.ActiveAbilityListener.glitchState.contains(pid)) return;
 
             // Read duration: prefer potion-duration (ticks, set by GUI), fall back to duration (seconds)
             int durationTicks = abilitySec.contains("potion-duration")
@@ -68,7 +68,7 @@ public class AbilityManager {
 
             // Apply speed buff using configurable amplifier
             player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, durationTicks + 10, speedAmp, false, false));
-            com.eternalitemcore.listeners.ActiveAbilityListener.glitchState.add(pid);
+            com.otitem.listeners.ActiveAbilityListener.glitchState.add(pid);
             player.sendMessage(ChatColor.DARK_PURPLE + "" + ChatColor.BOLD + "[GLITCH] You phase into the void!");
 
             // Hide the player from ALL other online players (hides armor + items too)
@@ -98,7 +98,7 @@ public class AbilityManager {
             new org.bukkit.scheduler.BukkitRunnable() {
                 public void run() {
                     if (!player.isOnline()) return;
-                    com.eternalitemcore.listeners.ActiveAbilityListener.glitchState.remove(pid);
+                    com.otitem.listeners.ActiveAbilityListener.glitchState.remove(pid);
                     player.setAllowFlight(false);
                     player.removePotionEffect(PotionEffectType.SPEED);
 

@@ -1,6 +1,6 @@
-package com.eternalitemcore.gui;
+package com.otitem.gui;
 
-import com.eternalitemcore.EternalItemCore;
+import com.otitem.OTItem;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -14,9 +14,9 @@ import java.util.List;
 
 public class AdminGUIManager {
 
-    private final EternalItemCore plugin;
+    private final OTItem plugin;
 
-    public AdminGUIManager(EternalItemCore plugin) {
+    public AdminGUIManager(OTItem plugin) {
         this.plugin = plugin;
     }
 

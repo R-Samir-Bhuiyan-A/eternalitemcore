@@ -1,6 +1,6 @@
-package com.eternalitemcore.commands;
+package com.otitem.commands;
 
-import com.eternalitemcore.EternalItemCore;
+import com.otitem.OTItem;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
@@ -11,11 +11,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class EternalItemCoreTabCompleter implements TabCompleter {
+public class OTItemTabCompleter implements TabCompleter {
 
-    private final EternalItemCore plugin;
+    private final OTItem plugin;
 
-    public EternalItemCoreTabCompleter(EternalItemCore plugin) {
+    public OTItemTabCompleter(OTItem plugin) {
         this.plugin = plugin;
     }
 
@@ -23,22 +23,22 @@ public class EternalItemCoreTabCompleter implements TabCompleter {
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         List<String> completions = new ArrayList<>();
 
-        if (!sender.hasPermission("eternalitemcore.admin") && !sender.hasPermission("eternalitemcore.player")) {
+        if (!sender.hasPermission("OTItem.admin") && !sender.hasPermission("OTItem.player")) {
             return completions;
         }
 
         if (args.length == 1) {
             List<String> subCommands = new ArrayList<>();
-            if (sender.hasPermission("eternalitemcore.admin")) {
+            if (sender.hasPermission("OTItem.admin")) {
                 subCommands.addAll(Arrays.asList("edit", "give", "setlevel", "addstat", "clearstats", "reload"));
             }
-            if (sender.hasPermission("eternalitemcore.player")) {
+            if (sender.hasPermission("OTItem.player")) {
                 subCommands.addAll(Arrays.asList("toggleeffects", "togglebroadcast", "viewstats"));
             }
             completions.addAll(subCommands.stream()
                     .filter(c -> c.startsWith(args[0].toLowerCase()))
                     .collect(Collectors.toList()));
-        } else if (args.length == 2 && sender.hasPermission("eternalitemcore.admin") && !args[0].equalsIgnoreCase("reload")) {
+        } else if (args.length == 2 && sender.hasPermission("OTItem.admin") && !args[0].equalsIgnoreCase("reload")) {
             completions.addAll(plugin.getServer().getOnlinePlayers().stream()
                     .map(Player::getName)
                     .filter(n -> n.toLowerCase().startsWith(args[1].toLowerCase()))

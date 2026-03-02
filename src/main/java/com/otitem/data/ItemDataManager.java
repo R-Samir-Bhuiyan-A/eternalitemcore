@@ -1,6 +1,6 @@
-package com.eternalitemcore.data;
+package com.otitem.data;
 
-import com.eternalitemcore.EternalItemCore;
+import com.otitem.OTItem;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -13,10 +13,10 @@ import java.util.List;
 
 public class ItemDataManager {
 
-    private final EternalItemCore plugin;
+    private final OTItem plugin;
     private final NamespacedKey enabledStatsKey;
 
-    public ItemDataManager(EternalItemCore plugin) {
+    public ItemDataManager(OTItem plugin) {
         this.plugin = plugin;
         this.enabledStatsKey = new NamespacedKey(plugin, "enabled_stats");
     }

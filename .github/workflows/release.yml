@@ -1,4 +1,4 @@
-name: EternalItemCore Auto CI/CD Pipeline
+name: OTItem Auto CI/CD Pipeline
 
 on:
   push:
@@ -36,8 +36,8 @@ jobs:
       - name: Upload Plugin Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: EternalItemCore-DevBuild
-          path: ./target/EternalItemCore-*.jar
+          name: OTItem-DevBuild
+          path: ./target/OTItem-*.jar
           if-no-files-found: error
 
   release:
@@ -53,7 +53,7 @@ jobs:
       - name: Download Built Plugin Artifact
         uses: actions/download-artifact@v4
         with:
-          name: EternalItemCore-DevBuild
+          name: OTItem-DevBuild
           path: ./artifact-bin
           
       - name: Auto-Generate Release Notes
@@ -65,15 +65,15 @@ jobs:
           echo "release_tag=$RELEASE_TAG" >> $GITHUB_OUTPUT
           
           # Rename the artifact to match the release tag dynamically
-          JAR_FILE=$(find ./artifact-bin -name "EternalItemCore-*.jar" | head -n 1)
-          mv "$JAR_FILE" "./artifact-bin/EternalItemCore-$RELEASE_TAG.jar"
-          echo "jar_path=./artifact-bin/EternalItemCore-$RELEASE_TAG.jar" >> $GITHUB_OUTPUT
+          JAR_FILE=$(find ./artifact-bin -name "OTItem-*.jar" | head -n 1)
+          mv "$JAR_FILE" "./artifact-bin/OTItem-$RELEASE_TAG.jar"
+          echo "jar_path=./artifact-bin/OTItem-$RELEASE_TAG.jar" >> $GITHUB_OUTPUT
           
           # Get the latest commit message
           COMMIT_MSG=$(git log -1 --pretty=%B)
 
           echo "notes<<EOF" >> $GITHUB_OUTPUT
-          echo "## 🚀 EternalItemCore Stable Release (Build $SHORT_SHA)" >> $GITHUB_OUTPUT
+          echo "## 🚀 OTItem Stable Release (Build $SHORT_SHA)" >> $GITHUB_OUTPUT
           echo "" >> $GITHUB_OUTPUT
           echo "### 📝 What's Changed" >> $GITHUB_OUTPUT
           echo "$COMMIT_MSG" >> $GITHUB_OUTPUT
@@ -82,14 +82,14 @@ jobs:
           echo "✅ **Java Build**: Compiled natively targeting Paper API JDK 21" >> $GITHUB_OUTPUT
           echo "" >> $GITHUB_OUTPUT
           echo "### Instructions" >> $GITHUB_OUTPUT
-          echo "- **Plugin Installation**: Drop the \`EternalItemCore-$RELEASE_TAG.jar\` file below into your \`plugins/\` folder and configure via the dashboard or config." >> $GITHUB_OUTPUT
+          echo "- **Plugin Installation**: Drop the \`OTItem-$RELEASE_TAG.jar\` file below into your \`plugins/\` folder and configure via the dashboard or config." >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ steps.generate_changelog.outputs.release_tag }}
-          name: "EternalItemCore Build ${{ steps.generate_changelog.outputs.release_tag }}"
+          name: "OTItem Build ${{ steps.generate_changelog.outputs.release_tag }}"
           body: ${{ steps.generate_changelog.outputs.notes }}
           files: ${{ steps.generate_changelog.outputs.jar_path }}
           draft: false

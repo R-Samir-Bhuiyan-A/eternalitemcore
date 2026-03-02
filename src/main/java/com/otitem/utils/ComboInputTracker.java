@@ -1,6 +1,6 @@
-package com.eternalitemcore.utils;
+package com.otitem.utils;
 
-import com.eternalitemcore.EternalItemCore;
+import com.otitem.OTItem;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
@@ -13,12 +13,12 @@ import java.util.stream.Collectors;
  */
 public class ComboInputTracker {
 
-    private final EternalItemCore plugin;
+    private final OTItem plugin;
 
     // Per-player rolling input buffer
     private final Map<UUID, Deque<TimedInput>> buffers = new HashMap<>();
 
-    public ComboInputTracker(EternalItemCore plugin) {
+    public ComboInputTracker(OTItem plugin) {
         this.plugin = plugin;
     }
 

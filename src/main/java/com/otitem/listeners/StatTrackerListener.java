@@ -1,6 +1,6 @@
-package com.eternalitemcore.listeners;
+package com.otitem.listeners;
 
-import com.eternalitemcore.EternalItemCore;
+import com.otitem.OTItem;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -14,9 +14,9 @@ import org.bukkit.ChatColor;
 
 public class StatTrackerListener implements Listener {
 
-    private final EternalItemCore plugin;
+    private final OTItem plugin;
 
-    public StatTrackerListener(EternalItemCore plugin) {
+    public StatTrackerListener(OTItem plugin) {
         this.plugin = plugin;
     }
 

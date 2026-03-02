@@ -1,6 +1,6 @@
-package com.eternalitemcore.data;
+package com.otitem.data;
 
-import com.eternalitemcore.EternalItemCore;
+import com.otitem.OTItem;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.persistence.PersistentDataContainer;
@@ -8,10 +8,10 @@ import org.bukkit.persistence.PersistentDataType;
 
 public class PlayerSettingsManager {
 
-    private final EternalItemCore plugin;
+    private final OTItem plugin;
     private final NamespacedKey effectsHiddenKey;
 
-    public PlayerSettingsManager(EternalItemCore plugin) {
+    public PlayerSettingsManager(OTItem plugin) {
         this.plugin = plugin;
         this.effectsHiddenKey = new NamespacedKey(plugin, "hide_own_kill_effects");
     }

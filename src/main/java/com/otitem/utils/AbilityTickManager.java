@@ -1,6 +1,6 @@
-package com.eternalitemcore.utils;
+package com.otitem.utils;
 
-import com.eternalitemcore.EternalItemCore;
+import com.otitem.OTItem;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
@@ -12,9 +12,9 @@ import java.util.List;
 
 public class AbilityTickManager implements Runnable {
 
-    private final EternalItemCore plugin;
+    private final OTItem plugin;
 
-    public AbilityTickManager(EternalItemCore plugin) {
+    public AbilityTickManager(OTItem plugin) {
         this.plugin = plugin;
     }
 

@@ -1,6 +1,6 @@
-package com.eternalitemcore.core;
+package com.otitem.core;
 
-import com.eternalitemcore.EternalItemCore;
+import com.otitem.OTItem;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -14,9 +14,9 @@ import java.util.stream.Collectors;
 
 public class CoreItemManager {
 
-    private final EternalItemCore plugin;
+    private final OTItem plugin;
 
-    public CoreItemManager(EternalItemCore plugin) {
+    public CoreItemManager(OTItem plugin) {
         this.plugin = plugin;
     }
 

@@ -29,7 +29,7 @@ rarities:
 stat-cores:
   SOUL_OF_THE_WARLORD:
     material: NETHER_STAR
-    name: "&#8a0303&lSoul of the Warlord"
+    name: "&4&lSoul of the Warlord"
     lore:
       - "&7A throbbing, crimson jewel torn"
       - "&7from the chest of a tyrant."
@@ -44,7 +44,7 @@ stat-cores:
     
   ESSENCE_OF_THE_HUNTER:
     material: GHAST_TEAR
-    name: "&#ff8c00&lEssence of the Blood-Hunter"
+    name: "&6&lEssence of the Blood-Hunter"
     lore:
       - "&7A violently shaking tear."
       - "&7It whispers of dark forests,"
@@ -59,7 +59,7 @@ stat-cores:
     
   HEART_OF_THE_MOUNTAIN:
     material: DIAMOND
-    name: "&#00f0ff&lHeart of the Ancient Mountain"
+    name: "&b&lHeart of the Ancient Mountain"
     lore:
       - "&7A perfectly symmetrical geode,"
       - "&7cold to the touch yet humming"
@@ -73,7 +73,7 @@ stat-cores:
     
   SHIELD_OF_THE_AEGIS:
     material: PRISMARINE_SHARD
-    name: "&#a19f9f&lFragment of the Aegis"
+    name: "&7&lFragment of the Aegis"
     lore:
       - "&7A shattered piece of the"
       - "&7unbreakable wall that once"
@@ -88,7 +88,7 @@ stat-cores:
     
   ESSENCE_OF_RESILIENCE:
     material: AMETHYST_SHARD
-    name: "&#7a00ff&lEssence of Void Resilience"
+    name: "&5&lEssence of Void Resilience"
     lore:
       - "&7A chunk of pure void-stone."
       - "&7It absorbs impact, feeding"
@@ -103,7 +103,7 @@ stat-cores:
 
   CORE_OF_THE_STORM:
     material: ECHO_SHARD
-    name: "&#00c3ff&lCore of the Tempest"
+    name: "&b&lCore of the Tempest"
     lore:
       - "&7Crackling with contained lightning,"
       - "&7this volatile shard begs to be"
@@ -117,7 +117,7 @@ stat-cores:
 
   EYE_OF_THE_SNIPER:
     material: SPIDER_EYE
-    name: "&#a8fba4&lEye of the Sniper"
+    name: "&a&lEye of the Sniper"
     lore:
       - "&7An unblinking eye, said to guide"
       - "&7the arrows of legendary archers."
@@ -130,7 +130,7 @@ stat-cores:
     
   ROOT_OF_THE_EARTH:
     material: HANGING_ROOTS
-    name: "&#6b4226&lRoot of the Earth"
+    name: "&6&lRoot of the Earth"
     lore:
       - "&7A gnarled root pulsating with"
       - "&7the raw energy of nature."
@@ -143,7 +143,7 @@ stat-cores:
     
   SKULL_OF_THE_BRUTE:
     material: WITHER_SKELETON_SKULL
-    name: "&#c2c2c2&lSkull of the Brute"
+    name: "&7&lSkull of the Brute"
     lore:
       - "&7A cracked skull radiating"
       - "&7pure, unadulterated rage."
@@ -156,7 +156,7 @@ stat-cores:
 
   CROWN_OF_MADNESS:
     material: SCULK_VEIN
-    name: "&#0a252a&lCrown of Deep Madness"
+    name: "&3&lCrown of Deep Madness"
     lore:
       - "&7A pulsing, shadowy mass that"
       - "&7whispers from the deep dark."
@@ -169,7 +169,7 @@ stat-cores:
 
   VOID_WALKER_BOOT:
     material: ECHO_SHARD
-    name: "&#8b3adb&lVoid Walker's Core"
+    name: "&5&lVoid Walker's Core"
     lore:
       - "&7A shard of pure nothingness."
       - "&7It hums with displaced reality,"
@@ -216,7 +216,7 @@ allowed-stats:
 stats:
   PLAYER_KILLS:
     event: PLAYER_KILL
-    display: "&#ff3b3b⚔ Player Kills"
+    display: "&c⚔ Player Kills"
     max-level: 5
     conflicts-with:
       - STORM_KILLS
@@ -244,7 +244,7 @@ stats:
         broadcast-message: "&4&l%player%'s&7 blade violently erupts to Level 3!"
       4:
         storyline:
-          - "&#ff0000&l&o'THE WARLORD AWAKENS'"
+          - "&c&l&o'THE WARLORD AWAKENS'"
           - "&c&oYou have become the physical"
           - "&c&oembodiment of death on the server."
           - "&c&oYour weapon permanently seethes"
@@ -253,7 +253,7 @@ stats:
         broadcast-message: "&4&l%player% &chas awakened the Warlord within their weapon! (Level 4)"
       5:
         storyline:
-          - "&#ff0000&k||| &4&lGOD OF WAR &#ff0000&k|||"
+          - "&c&k||| &4&lGOD OF WAR &c&k|||"
           - "&c&oThere is no one left to challenge you."
           - "&c&oThe blade has consumed everything."
           - "&c&oYou are the eternal conqueror."
@@ -262,7 +262,7 @@ stats:
       
   STORM_KILLS:
     event: PLAYER_KILL
-    display: "&#00c3ff⚡ Tempest Strikes"
+    display: "&b⚡ Tempest Strikes"
     max-level: 5
     conflicts-with:
       - PLAYER_KILLS
@@ -286,13 +286,13 @@ stats:
         broadcast-message: "&3&l%player%'s&7 weapon has harnessed the tempest! (Level 3)"
       4:
         storyline:
-          - "&#00c3ff&l&o'MJOLNIR PROTOTYPE'"
+          - "&b&l&o'MJOLNIR PROTOTYPE'"
           - "&b&oThe air pressure drops violently."
         ability-unlock: DIVINE_SMITE_KILL
         broadcast-message: "&b&l%player% &3is summoning severe storms! (Level 4)"
       5:
         storyline:
-          - "&#00c3ff&k||| &b&lTHE THUNDER GOD &#00c3ff&k|||"
+          - "&b&k||| &b&lTHE THUNDER GOD &b&k|||"
           - "&b&oYou point, and lightning strikes."
           - "&b&oYour will is the storm."
         ability-unlock: MJOLNIR_STRIKE
@@ -300,7 +300,7 @@ stats:
 
   MOB_KILLS:
     event: MOB_KILL
-    display: "&#ffae00☠ Monster Cleave"
+    display: "&6☠ Monster Cleave"
     max-level: 4
     conflicts-with: []
     leveling:
@@ -316,7 +316,7 @@ stats:
         broadcast-message: "&6&l%player%'s&7 blade is hungering for monsters... (Level 2)"
       3:
         storyline:
-          - "&#ffae00&l&oTHE MONSTER HUNTER"
+          - "&6&l&oTHE MONSTER HUNTER"
           - "&e&oYour name is whispered in terror"
           - "&e&oamongst the creatures of the night."
         ability-unlock: VAMPIRE_BITE
@@ -331,7 +331,7 @@ stats:
   DIAMONDS_MINED:
     event: BLOCK_BREAK
     block: DIAMOND_ORE
-    display: "&#00f0ff💎 Deep Earth Riches"
+    display: "&b💎 Deep Earth Riches"
     max-level: 3
     conflicts-with: []
     leveling:
@@ -348,7 +348,7 @@ stats:
         broadcast-message: "&b&l%player% &7is mastering the deep caves! (Level 2)"
       3:
         storyline:
-          - "&#00f0ff&l&oMASTER OF THE ABYSS"
+          - "&b&l&oMASTER OF THE ABYSS"
           - "&3&oYou have conquered the deepest caves."
           - "&3&oThe stone shatters before you."
         ability-unlock: ABYSSAL_HASTE
@@ -356,7 +356,7 @@ stats:
 
   DAMAGE_TAKEN:
     event: ENTITY_DAMAGE
-    display: "&#a832a8🛡 Void Endurance"
+    display: "&5🛡 Void Endurance"
     max-level: 3
     conflicts-with: []
     leveling:
@@ -374,14 +374,14 @@ stats:
         ability-unlock: RESISTANCE_AURA
       3:
         storyline:
-          - "&#a832a8&l&oTHE IMMOVABLE MOUNTAIN"
+          - "&5&l&oTHE IMMOVABLE MOUNTAIN"
           - "&5&oBlows that would shatter mortal men"
           - "&5&obounce harmlessly off your shell."
         ability-unlock: VOID_THICK_SKIN
 
   VOID_STEPS:
     event: ENTITY_DAMAGE
-    display: "&5&#8b3adb👣 Void Steps"
+    display: "&5👣 Void Steps"
     max-level: 5
     conflicts-with: []
     leveling:
@@ -399,11 +399,11 @@ stats:
         broadcast-message: "&5&l%player% &7's boots fade into shadow! (Level 2)"
       3:
         storyline:
-          - "&#8b3adb&l&oYOU PHASE INTO THE VOID"
+          - "&5&l&oYOU PHASE INTO THE VOID"
           - "&5&oReality bends around you."
           - "&5&oPull the trigger. Phase out."
         ability-unlock: GLITCH_WALK
-        broadcast-message: "&#8b3adb&l%player% &7has unlocked GLITCH WALK!"
+        broadcast-message: "&5&l%player% &7has unlocked GLITCH WALK!"
       4:
         storyline:
           - "&8&oThe boundaries between worlds"
@@ -411,14 +411,14 @@ stats:
         broadcast-message: "&5&l%player% &7's void steps deepen! (Level 4)"
       5:
         storyline:
-          - "&#8b3adb&l&oMASTER OF THE VOID"
+          - "&5&l&oMASTER OF THE VOID"
           - "&5&oYou are no longer bound by"
           - "&5&othe rules of this dimension."
-        broadcast-message: "&#8b3adb&l%player% &7masters the void! (MAX LEVEL)"
+        broadcast-message: "&5&l%player% &7masters the void! (MAX LEVEL)"
 
   DAMAGE_BLOCKED:
     event: ENTITY_DAMAGE_BLOCKED
-    display: "&#a19f9f🛡 Aegis Deflection"
+    display: "&7🛡 Aegis Deflection"
     max-level: 3
     conflicts-with: []
     leveling:
@@ -434,7 +434,7 @@ stats:
         ability-unlock: RESISTANCE_AURA
       3:
         storyline:
-          - "&#a19f9f&l&oTHE HEAVENLY BULWARK"
+          - "&7&l&oTHE HEAVENLY BULWARK"
           - "&8&oYou are the unbreakable wall."
         ability-unlock: GUARDIAN_ANGEL
 
