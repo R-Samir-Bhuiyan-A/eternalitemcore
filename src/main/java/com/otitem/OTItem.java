@@ -24,6 +24,7 @@ public class OTItem extends JavaPlugin {
     private AbilityManager abilityManager;
     private ComboInputTracker comboInputTracker;
     private com.otitem.gui.AdminGUIManager adminGUIManager;
+    private com.otitem.api.PluginMetrics pluginMetrics;
 
 
     @Override
@@ -39,6 +40,8 @@ public class OTItem extends JavaPlugin {
         this.abilityManager = new AbilityManager(this);
         this.comboInputTracker = new ComboInputTracker(this);
         this.adminGUIManager = new com.otitem.gui.AdminGUIManager(this);
+        this.pluginMetrics = new com.otitem.api.PluginMetrics(this);
+        this.pluginMetrics.init();
 
         getCommand("otitem").setExecutor(new OTItemCommand(this));
         getCommand("otitem").setTabCompleter(new OTItemTabCompleter(this));

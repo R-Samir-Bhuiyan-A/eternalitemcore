@@ -173,10 +173,7 @@ public class CoreApplyListener implements Listener {
             }
             
             book.setItemMeta(meta);
-            java.util.HashMap<Integer, org.bukkit.inventory.ItemStack> excess = player.getInventory().addItem(book);
-            for (org.bukkit.inventory.ItemStack drop : excess.values()) {
-                player.getWorld().dropItemNaturally(player.getLocation(), drop);
-            }
+            player.getWorld().dropItemNaturally(player.getLocation(), book);
             player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e&oA mysterious tome appears..."));
         }
     }

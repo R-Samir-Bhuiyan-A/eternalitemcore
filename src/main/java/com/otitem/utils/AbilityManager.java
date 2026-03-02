@@ -9,6 +9,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.UUID;
 
@@ -20,7 +21,7 @@ public class AbilityManager {
         this.plugin = plugin;
     }
 
-    public void triggerAbility(Player player, String abilityCoreId, Location loc) {
+    public void triggerAbility(Player player, ItemStack sourceItem, String abilityCoreId, Location loc) {
         ConfigurationSection abilitySec = plugin.getConfig().getConfigurationSection("ability-cores." + abilityCoreId);
         if (abilitySec == null) return;
 
@@ -129,7 +130,11 @@ public class AbilityManager {
 
         } else if (type.equalsIgnoreCase("KILL_EFFECT") && loc != null) {
             String effectName = abilitySec.getString("effect");
-            boolean hideEffects = plugin.getPlayerSettingsManager().hasEffectsHidden(player);
+            boolean hideEffects = false;
+            if (sourceItem != null && sourceItem.hasItemMeta()) {
+                byte current = sourceItem.getItemMeta().getPersistentDataContainer().getOrDefault(new org.bukkit.NamespacedKey(plugin, "hide_kill_effects"), org.bukkit.persistence.PersistentDataType.BYTE, (byte) 0);
+                if (current == 1) hideEffects = true;
+            }
             
             // If the player toggled their kill effects off, don't play the effect at all for anyone
             if (hideEffects) {

@@ -39,9 +39,24 @@ public class OTItemCommand implements CommandExecutor {
                 player.sendMessage(ChatColor.RED + "You do not have permission.");
                 return true;
             }
-            plugin.getPlayerSettingsManager().toggleEffectsHidden(player);
-            boolean hidden = plugin.getPlayerSettingsManager().hasEffectsHidden(player);
-            player.sendMessage(ChatColor.GREEN + "Your item kill effects are now " + (hidden ? ChatColor.RED + "DISABLED" : ChatColor.GREEN + "ENABLED") + ChatColor.GREEN + " for everyone.");
+            ItemStack hand = player.getInventory().getItemInMainHand();
+            if (hand.getType().isAir() || !hand.hasItemMeta()) {
+                player.sendMessage(ChatColor.RED + "You must hold an eternal item in your main hand.");
+                return true;
+            }
+            org.bukkit.persistence.PersistentDataContainer pdc = hand.getItemMeta().getPersistentDataContainer();
+            org.bukkit.NamespacedKey hideEffectsKey = new org.bukkit.NamespacedKey(plugin, "hide_kill_effects");
+            byte current = pdc.getOrDefault(hideEffectsKey, org.bukkit.persistence.PersistentDataType.BYTE, (byte) 0);
+            
+            org.bukkit.inventory.meta.ItemMeta meta = hand.getItemMeta();
+            if (current == 0) {
+                meta.getPersistentDataContainer().set(hideEffectsKey, org.bukkit.persistence.PersistentDataType.BYTE, (byte) 1);
+                player.sendMessage(ChatColor.GREEN + "Kill effects for this item are now " + ChatColor.RED + "DISABLED" + ChatColor.GREEN + " for everyone.");
+            } else {
+                meta.getPersistentDataContainer().set(hideEffectsKey, org.bukkit.persistence.PersistentDataType.BYTE, (byte) 0);
+                player.sendMessage(ChatColor.GREEN + "Kill effects for this item are now " + ChatColor.AQUA + "ENABLED" + ChatColor.GREEN + " for everyone.");
+            }
+            hand.setItemMeta(meta);
             return true;
         }
 

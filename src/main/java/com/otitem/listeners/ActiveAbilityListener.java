@@ -352,7 +352,7 @@ public class ActiveAbilityListener implements Listener {
             success = true;
         } else if (effectName.equalsIgnoreCase("GLITCH_WALK")) {
             // Route to AbilityManager for the complex Glitch State logic
-            plugin.getAbilityManager().triggerAbility(player, abilityId, null);
+            plugin.getAbilityManager().triggerAbility(player, itemUsed, abilityId, null);
             // triggerAbility handles the state internally; mark as success so cooldown applies
             success = true;
         }
